@@ -1,0 +1,291 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta content="" name="keywords">
+<meta content="無限に続く迷宮を作る(誇張) - JokenOffline(電子版)" property="og:title">
+<title>無限に続く迷宮を作る(誇張) | JokenOffline(電子版)</title>
+<link rel="stylesheet" href="https://kyumina.github.io/jokenoffline2017//css/style.css">
+<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/default.min.css" integrity="sha256-Zd1icfZ72UBmsId/mUcagrmN7IN5Qkrvh75ICHIQVTk=" crossorigin="anonymous" />
+
+
+<section class="section">
+  <div class="container">
+    <nav class="nav">
+      <div class="nav-left">
+        <a class="nav-item" href="https://kyumina.github.io/jokenoffline2017/"><h1 class="title is-4">JokenOffline(電子版)</h1></a>
+      </div>
+      <div class="nav-right">
+        <nav class="nav-item level is-mobile">
+          
+        </nav>
+      </div>
+    </nav>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <h2 class="subtitle is-6">April 7, 2017</h2>
+    <h1 class="title">無限に続く迷宮を作る(誇張)</h1>
+    
+    <div class="content">
+      
+
+<h1 id="あいさつ">あいさつ</h1>
+
+<p>　情報工学科のふるつきといいます。去年は、サイバーセキュリティまわりの競技やスーパーコンピューティングコンテストで成績を残しました。一方で、高専プロコンでは大敗を喫して面目丸つぶれも経験しました（これは二回目のことで、一昨年は去年よりももっと酷い負け方をしてました）。</p>
+
+<p>JOKENではそんな感じでサイバーセキュリティまわりのことをしたり、あとは、LT（LightningTalkのこと。5-10分程度の短い発表）を開催してみたりと、「わいわい盛り上がってうぇいうぇいしたい」的な欲求の実現に向けて日々精進したりしています。</p>
+
+<p>その一方で、私は「現代視覚文化研究会」にも所属しており、こちらではなーんにもしていないのですが、毎年、高専祭のために一本ゲームを作る活動だけはなんとか続けています。今年は本当にぎりぎりのスケジュールで、当日もまだ新しいバグを見つけたり、未実装の機能をだましだましで動かしたりしていました。ふらふらコスモノートというゲームで、<a href="http://nnct-mvccc.sakura.ne.jp/products/584291b663643/index.html">http://nnct-mvccc.sakura.ne.jp/products/584291b663643/index.html</a> で公開していますので一度遊んでみてください。</p>
+
+<p>今回はこのふらふらコスモノートを作ったときのアルゴリズムの話を書きます。新入生のうちのいくらかがちょっと期待しているゲームの話で、それなりに頭をつかうので、悪くない題材だと思います。げんしけんのマーケティングが混じってることを除けば。</p>
+
+<h1 id="迷宮を作る">迷宮を作る</h1>
+
+<h2 id="作りたいもの">作りたいもの</h2>
+
+<p>　ふらふらコスモノートは、宇宙飛行士が、宇宙空間をふらふらと彷徨うゲームなのですが、宇宙が無限に広がっているわけではなくスペースデブリの隙間を縫って先に進む必要があります（そういう設定です）。この、スペースデブリの迷路を、無限の長さにしたい、というのが当初の要望でした。</p>
+
+
+<figure >
+    
+        <img src="https://kyumina.github.io/jokenoffline2017/images/field.png" />
+    
+    
+    <figcaption>
+        <h4>迷宮(迷宮っぽくないとか言わない)</h4>
+        
+    </figcaption>
+    
+</figure>
+
+
+<p>上の図みたいな迷宮が無限に続くみたいなのをイメージしています。</p>
+
+<h2 id="無限の迷宮がつくれるか">無限の迷宮がつくれるか</h2>
+
+<p>　無限の迷宮ってどうやって作るんでしょうね？　作ったとして、有限のメモリのどこに保存しておくんでしょうね？</p>
+
+<p>こういう疑問が出てくるのは当たり前ですね。というか、前提条件ですね。「無限の迷路を作りたいなぁ」と思ったときに、実際に無限の空間を生成しようとするのは愚かなことです。それは無限の満たすべき要件を間違えています。</p>
+
+<p>無限の迷宮というのは「途切れることのない」迷宮です。まだ見えない場所に何があるかなんて、気にする必要はありません。「いままでに訪れた場所」と「これから訪れる場所」ができていれば、それでよいというわけです。「これから訪れる場所」も今いる場所から1px先とか2px先とかでも良いわけで、最後までたどり着くかわからないような場所を生成する必要はありません。</p>
+
+<p>さらにふらふらコスモノートは強制スクロール式のゲームです。「今まで訪れた場所」にもう一度訪れることは有りえません。というわけで、必要な迷宮は「画面の中」と「画面の少し先」の部分だけで、ずうっと先なんて生成する必要はないし、いままで訪れた場所をずっと保存しておく必要もなくなりました。だいぶ問題が簡単になりましたね。</p>
+
+<p>これで「無限っぽく感じる迷宮」を作れそうです。もっというと「無限のインタフェースを満たした迷宮」ですかね。アヒルのように鳴き、アヒルのように歩くものはアヒルだという話です。</p>
+
+<h2 id="実装する">実装する</h2>
+
+<p>　実装します。もっと細かいことを決めてから実装をはじめるのも良いと思いますが、私は書きながら「あれ？　ここも決めないとな」とか言ってその場で適当に決めてしまうタイプの人間です（こういうタイプの人間は大したものは作れないことになっていて、大したものを作りたい場合はしっかり設計を固めてから実装しましょう。実装が考えてやるものではなくて「やるだけ」と言えれば上々な気がします）。</p>
+
+<p>まずはどのくらいの単位で作っていくかを決めましょう。つまり、画面いっこをドーンと生成するのか、それとも、1マスずつ生成していくのかという話です。</p>
+
+<p>今回は、一行ずつ作ることにしました。n行で一画面になります。こういう方針にしたのは、画面をスクロールするときには一行単位で更新するからです。</p>
+
+<p>　では、この一行が満たすべき要件は何でしょうか。今回の場合は「1マス以上の幅の穴が一箇所だけあいている」ことになりそうです。さらに「前の行の穴から連続している」という条件も必要ですね。これらを満たさない一行が混じった場合の迷宮のイメージ図を後に載せますが、辿り着けない穴が開いていたり、最悪行き止まりになってしまうという場合が生まれます。</p>
+
+
+<figure >
+    
+        <img src="https://kyumina.github.io/jokenoffline2017/images/badfield.png" />
+    
+    
+    <figcaption>
+        <h4>だめな迷宮</h4>
+        
+    </figcaption>
+    
+</figure>
+
+
+<h2 id="ほんとに実装する">ほんとに実装する</h2>
+
+<p>前節では実装すると言ってしなかったので、本節では本当に実装していきます。ここではPythonを使います。</p>
+
+<h3 id="最初の実装">最初の実装</h3>
+
+<pre><code class="language-python">def makeLine(width):
+    return [0 for i in range(width)]
+</code></pre>
+
+<p>穴は1、非穴は0で表現することにして、一行を配列に収めます。$[&hellip;]$ の部分はちょっとPython独自の記法なのでわからない人にはわからないと思いますが、大きさ $width$ の配列を生成します。今回は0で埋まっています。</p>
+
+<p>さて、ここに穴をあけていきます。穴は、とりあえず適当な場所に、適当な大きさの穴をあけちゃいましょう。</p>
+
+<pre><code class="language-python">import random
+def makeLine(width):
+    line = [0 for i in range(width)]
+    p = random.randrange(width)
+    for i in range(random.randrange(width)):
+        line[p+i] = 1
+    return line
+</code></pre>
+
+<p>ランダムな場所から、ランダムな大きさの穴をあけます。とはいえ、今は、ほんとうにランダムにしているので、配列の範囲外にアクセスしてしまいかねません。もうちょっと改善しましょう。</p>
+
+<pre><code class="language-python">import random
+def makeLine(width):
+    line = [0 for i in range(width)]
+    p = random.randrange(width)
+    for i in range(random.randrange(width-p)):
+        line[p+i] = 1
+    return line
+</code></pre>
+
+<p>このあたりはPythonのrandomモジュールについての知識が必要になってややこしいですが、穴を開ける時の幅を、範囲外アクセスがない程度に収めます。</p>
+
+<p>いまの状態で、例えば10行を生成すると、こんな感じです。</p>
+
+<pre><code>[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[0, 0, 0, 0, 1, 0, 0, 0, 0, 0]
+[0, 1, 1, 1, 1, 1, 1, 1, 0, 0]
+[0, 0, 1, 1, 0, 0, 0, 0, 0, 0]
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[0, 0, 0, 1, 1, 0, 0, 0, 0, 0]
+[0, 0, 1, 1, 1, 1, 1, 0, 0, 0]
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[0, 0, 1, 1, 1, 0, 0, 0, 0, 0]
+</code></pre>
+
+<p>穴のあいていないところや、前の行から連続して辿れないところがあってちょっと問題ですね。これらを改善していきましょう。</p>
+
+<h3 id="最小の幅をきめる">最小の幅をきめる</h3>
+
+<p>とりあえず、最小の穴のサイズを決めましょう。現状だと、穴の大きさが0ということが有りうるのですが、これはちょっといただけませんからね。</p>
+
+<pre><code class="language-python">import random
+def makeLine(width, holeminwidth):
+    line = [0 for i in range(width)]
+    p = random.randrange(width-holeminwidth)
+    for i in range(random.randrange(holeminwidth, width-p)):
+        line[p+i] = 1
+    return line
+</code></pre>
+
+<p>holeminwidthという引数を追加して、少なくともこの大きさの穴が空くようにしました。</p>
+
+<pre><code>0000111110
+0000111100
+0111111110
+0000111100
+1111111100
+0111100000
+0000011110
+0011111110
+1111110000
+0001111000
+</code></pre>
+
+<p>適当に生成しました。実にいい感じですが、真ん中のあたりでぶっつり途切れてしまっていますね。というわけで、次はこの辺を修正していきます。</p>
+
+<h3 id="前の行と合わせる">前の行と合わせる</h3>
+
+<pre><code class="language-python">import random
+def makeLine(width, holeminwidth, prevbegin, prevend):
+    line = [0 for i in range(width)]
+    p = random.randrange(max(0, prevbegin-holeminwidth), min(width-holeminwidth, prevend+holeminwidth))
+    for i in range(random.randrange(holeminwidth, width-p)):
+        line[p+i] = 1
+    return line
+</code></pre>
+
+<p>新しく引数にprevbeginとかprevendを追加しました。これは、前の行の穴の開始位置と終了位置を表していて、少なくともこの間に穴を一つ開けておけば、道はつながります。さらに、次の行のために今回の行の開始位置と終了位置を返すようにしてみます。</p>
+
+<pre><code class="language-python">import random
+def makeLine(width, holeminwidth, prevbegin, prevend):
+    line = [0 for i in range(width)]
+    p = random.randrange(max(0, prevbegin-holeminwidth), min(width-holeminwidth, prevend+holeminwidth))
+    w = random.randrange(holeminwidth, width-p)
+    for i in range(w):
+        line[p+i] = 1
+    return line, p, p+w
+</code></pre>
+
+<p>適当に50行くらい生成してみます。</p>
+
+<pre><code>0001111100
+0000011110
+0000111110
+0001111110
+0011111110
+0001111000
+0011111110
+0011111100
+1111110000
+0001111100
+0011111000
+0111110000
+0000111100
+0000011110
+0001111100
+0001111000
+0001111100
+0000011110
+0001111100
+1111111110
+0001111110
+1111111100
+0011110000
+0000111100
+0011111000
+0111111000
+0000011110
+0111111100
+0000111110
+0001111110
+0000011110
+0000011110
+0011110000
+0000111100
+0000011110
+0001111110
+0000111110
+0111110000
+0000011110
+0011111110
+</code></pre>
+
+
+<figure >
+    
+        <img src="https://kyumina.github.io/jokenoffline2017/images/maze.png" />
+    
+    
+    <figcaption>
+        <h4>生成された迷宮</h4>
+        
+    </figcaption>
+    
+</figure>
+
+
+<p>いい感じに見えますね。こんな感じで、あとは難易度に合わせて幅を調整したりすると、迷宮がつくれそうです。</p>
+
+<h1 id="おしまいに">おしまいに</h1>
+
+<p>ソースコードをこんなにたくさん、重複して乗っけたのに、そんなにページを稼げませんでした。短くて、それなりに親切で、基本を抑えてる人には十分わかる話が書けたとは思っていますが。</p>
+
+<p>このお話がわかるような人に向けて、少しだけ。こんなサボりじゃなくてちゃんとしたアルゴリズムを考えられる頭を作るほうが良いですよ、ということと、じつは上のプログラムは境界を適当に書きすぎててまだ不具合が残ってるよとかいうことをお伝えしておきます。
+ おしまい</p>
+
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container has-text-centered">
+    <p></p>
+  </div>
+</section>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js" integrity="sha256-KbfTjB0WZ8vvXngdpJGY3Yp3xKk+tttbqClO11anCIU=" crossorigin="anonymous"></script>
+
+<script>hljs.initHighlightingOnLoad();</script>
+
+
