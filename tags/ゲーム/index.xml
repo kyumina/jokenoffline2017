@@ -1,0 +1,691 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>ゲーム on JokenOffline(電子版)</title>
+    <link>https://kyumina.github.io/jokenoffline2017/tags/%E3%82%B2%E3%83%BC%E3%83%A0/index.xml</link>
+    <description>Recent content in ゲーム on JokenOffline(電子版)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>ja</language>
+    <atom:link href="https://kyumina.github.io/jokenoffline2017/tags/%E3%82%B2%E3%83%BC%E3%83%A0/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>無限に続く迷宮を作る(誇張)</title>
+      <link>https://kyumina.github.io/jokenoffline2017/archives/2017/04/07/make_eternal_maze/</link>
+      <pubDate>Fri, 07 Apr 2017 19:17:57 +0900</pubDate>
+      
+      <guid>https://kyumina.github.io/jokenoffline2017/archives/2017/04/07/make_eternal_maze/</guid>
+      <description>
+
+&lt;h1 id=&#34;あいさつ&#34;&gt;あいさつ&lt;/h1&gt;
+
+&lt;p&gt;　情報工学科のふるつきといいます。去年は、サイバーセキュリティまわりの競技やスーパーコンピューティングコンテストで成績を残しました。一方で、高専プロコンでは大敗を喫して面目丸つぶれも経験しました（これは二回目のことで、一昨年は去年よりももっと酷い負け方をしてました）。&lt;/p&gt;
+
+&lt;p&gt;JOKENではそんな感じでサイバーセキュリティまわりのことをしたり、あとは、LT（LightningTalkのこと。5-10分程度の短い発表）を開催してみたりと、「わいわい盛り上がってうぇいうぇいしたい」的な欲求の実現に向けて日々精進したりしています。&lt;/p&gt;
+
+&lt;p&gt;その一方で、私は「現代視覚文化研究会」にも所属しており、こちらではなーんにもしていないのですが、毎年、高専祭のために一本ゲームを作る活動だけはなんとか続けています。今年は本当にぎりぎりのスケジュールで、当日もまだ新しいバグを見つけたり、未実装の機能をだましだましで動かしたりしていました。ふらふらコスモノートというゲームで、&lt;a href=&#34;http://nnct-mvccc.sakura.ne.jp/products/584291b663643/index.html&#34;&gt;http://nnct-mvccc.sakura.ne.jp/products/584291b663643/index.html&lt;/a&gt; で公開していますので一度遊んでみてください。&lt;/p&gt;
+
+&lt;p&gt;今回はこのふらふらコスモノートを作ったときのアルゴリズムの話を書きます。新入生のうちのいくらかがちょっと期待しているゲームの話で、それなりに頭をつかうので、悪くない題材だと思います。げんしけんのマーケティングが混じってることを除けば。&lt;/p&gt;
+
+&lt;h1 id=&#34;迷宮を作る&#34;&gt;迷宮を作る&lt;/h1&gt;
+
+&lt;h2 id=&#34;作りたいもの&#34;&gt;作りたいもの&lt;/h2&gt;
+
+&lt;p&gt;　ふらふらコスモノートは、宇宙飛行士が、宇宙空間をふらふらと彷徨うゲームなのですが、宇宙が無限に広がっているわけではなくスペースデブリの隙間を縫って先に進む必要があります（そういう設定です）。この、スペースデブリの迷路を、無限の長さにしたい、というのが当初の要望でした。&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/field.png&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;迷宮(迷宮っぽくないとか言わない)&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;p&gt;上の図みたいな迷宮が無限に続くみたいなのをイメージしています。&lt;/p&gt;
+
+&lt;h2 id=&#34;無限の迷宮がつくれるか&#34;&gt;無限の迷宮がつくれるか&lt;/h2&gt;
+
+&lt;p&gt;　無限の迷宮ってどうやって作るんでしょうね？　作ったとして、有限のメモリのどこに保存しておくんでしょうね？&lt;/p&gt;
+
+&lt;p&gt;こういう疑問が出てくるのは当たり前ですね。というか、前提条件ですね。「無限の迷路を作りたいなぁ」と思ったときに、実際に無限の空間を生成しようとするのは愚かなことです。それは無限の満たすべき要件を間違えています。&lt;/p&gt;
+
+&lt;p&gt;無限の迷宮というのは「途切れることのない」迷宮です。まだ見えない場所に何があるかなんて、気にする必要はありません。「いままでに訪れた場所」と「これから訪れる場所」ができていれば、それでよいというわけです。「これから訪れる場所」も今いる場所から1px先とか2px先とかでも良いわけで、最後までたどり着くかわからないような場所を生成する必要はありません。&lt;/p&gt;
+
+&lt;p&gt;さらにふらふらコスモノートは強制スクロール式のゲームです。「今まで訪れた場所」にもう一度訪れることは有りえません。というわけで、必要な迷宮は「画面の中」と「画面の少し先」の部分だけで、ずうっと先なんて生成する必要はないし、いままで訪れた場所をずっと保存しておく必要もなくなりました。だいぶ問題が簡単になりましたね。&lt;/p&gt;
+
+&lt;p&gt;これで「無限っぽく感じる迷宮」を作れそうです。もっというと「無限のインタフェースを満たした迷宮」ですかね。アヒルのように鳴き、アヒルのように歩くものはアヒルだという話です。&lt;/p&gt;
+
+&lt;h2 id=&#34;実装する&#34;&gt;実装する&lt;/h2&gt;
+
+&lt;p&gt;　実装します。もっと細かいことを決めてから実装をはじめるのも良いと思いますが、私は書きながら「あれ？　ここも決めないとな」とか言ってその場で適当に決めてしまうタイプの人間です（こういうタイプの人間は大したものは作れないことになっていて、大したものを作りたい場合はしっかり設計を固めてから実装しましょう。実装が考えてやるものではなくて「やるだけ」と言えれば上々な気がします）。&lt;/p&gt;
+
+&lt;p&gt;まずはどのくらいの単位で作っていくかを決めましょう。つまり、画面いっこをドーンと生成するのか、それとも、1マスずつ生成していくのかという話です。&lt;/p&gt;
+
+&lt;p&gt;今回は、一行ずつ作ることにしました。n行で一画面になります。こういう方針にしたのは、画面をスクロールするときには一行単位で更新するからです。&lt;/p&gt;
+
+&lt;p&gt;　では、この一行が満たすべき要件は何でしょうか。今回の場合は「1マス以上の幅の穴が一箇所だけあいている」ことになりそうです。さらに「前の行の穴から連続している」という条件も必要ですね。これらを満たさない一行が混じった場合の迷宮のイメージ図を後に載せますが、辿り着けない穴が開いていたり、最悪行き止まりになってしまうという場合が生まれます。&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/badfield.png&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;だめな迷宮&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;h2 id=&#34;ほんとに実装する&#34;&gt;ほんとに実装する&lt;/h2&gt;
+
+&lt;p&gt;前節では実装すると言ってしなかったので、本節では本当に実装していきます。ここではPythonを使います。&lt;/p&gt;
+
+&lt;h3 id=&#34;最初の実装&#34;&gt;最初の実装&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;def makeLine(width):
+    return [0 for i in range(width)]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;穴は1、非穴は0で表現することにして、一行を配列に収めます。$[&amp;hellip;]$ の部分はちょっとPython独自の記法なのでわからない人にはわからないと思いますが、大きさ $width$ の配列を生成します。今回は0で埋まっています。&lt;/p&gt;
+
+&lt;p&gt;さて、ここに穴をあけていきます。穴は、とりあえず適当な場所に、適当な大きさの穴をあけちゃいましょう。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import random
+def makeLine(width):
+    line = [0 for i in range(width)]
+    p = random.randrange(width)
+    for i in range(random.randrange(width)):
+        line[p+i] = 1
+    return line
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;ランダムな場所から、ランダムな大きさの穴をあけます。とはいえ、今は、ほんとうにランダムにしているので、配列の範囲外にアクセスしてしまいかねません。もうちょっと改善しましょう。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import random
+def makeLine(width):
+    line = [0 for i in range(width)]
+    p = random.randrange(width)
+    for i in range(random.randrange(width-p)):
+        line[p+i] = 1
+    return line
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;このあたりはPythonのrandomモジュールについての知識が必要になってややこしいですが、穴を開ける時の幅を、範囲外アクセスがない程度に収めます。&lt;/p&gt;
+
+&lt;p&gt;いまの状態で、例えば10行を生成すると、こんな感じです。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[0, 0, 0, 0, 1, 0, 0, 0, 0, 0]
+[0, 1, 1, 1, 1, 1, 1, 1, 0, 0]
+[0, 0, 1, 1, 0, 0, 0, 0, 0, 0]
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[0, 0, 0, 1, 1, 0, 0, 0, 0, 0]
+[0, 0, 1, 1, 1, 1, 1, 0, 0, 0]
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[0, 0, 1, 1, 1, 0, 0, 0, 0, 0]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;穴のあいていないところや、前の行から連続して辿れないところがあってちょっと問題ですね。これらを改善していきましょう。&lt;/p&gt;
+
+&lt;h3 id=&#34;最小の幅をきめる&#34;&gt;最小の幅をきめる&lt;/h3&gt;
+
+&lt;p&gt;とりあえず、最小の穴のサイズを決めましょう。現状だと、穴の大きさが0ということが有りうるのですが、これはちょっといただけませんからね。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import random
+def makeLine(width, holeminwidth):
+    line = [0 for i in range(width)]
+    p = random.randrange(width-holeminwidth)
+    for i in range(random.randrange(holeminwidth, width-p)):
+        line[p+i] = 1
+    return line
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;holeminwidthという引数を追加して、少なくともこの大きさの穴が空くようにしました。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;0000111110
+0000111100
+0111111110
+0000111100
+1111111100
+0111100000
+0000011110
+0011111110
+1111110000
+0001111000
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;適当に生成しました。実にいい感じですが、真ん中のあたりでぶっつり途切れてしまっていますね。というわけで、次はこの辺を修正していきます。&lt;/p&gt;
+
+&lt;h3 id=&#34;前の行と合わせる&#34;&gt;前の行と合わせる&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import random
+def makeLine(width, holeminwidth, prevbegin, prevend):
+    line = [0 for i in range(width)]
+    p = random.randrange(max(0, prevbegin-holeminwidth), min(width-holeminwidth, prevend+holeminwidth))
+    for i in range(random.randrange(holeminwidth, width-p)):
+        line[p+i] = 1
+    return line
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;新しく引数にprevbeginとかprevendを追加しました。これは、前の行の穴の開始位置と終了位置を表していて、少なくともこの間に穴を一つ開けておけば、道はつながります。さらに、次の行のために今回の行の開始位置と終了位置を返すようにしてみます。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import random
+def makeLine(width, holeminwidth, prevbegin, prevend):
+    line = [0 for i in range(width)]
+    p = random.randrange(max(0, prevbegin-holeminwidth), min(width-holeminwidth, prevend+holeminwidth))
+    w = random.randrange(holeminwidth, width-p)
+    for i in range(w):
+        line[p+i] = 1
+    return line, p, p+w
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;適当に50行くらい生成してみます。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;0001111100
+0000011110
+0000111110
+0001111110
+0011111110
+0001111000
+0011111110
+0011111100
+1111110000
+0001111100
+0011111000
+0111110000
+0000111100
+0000011110
+0001111100
+0001111000
+0001111100
+0000011110
+0001111100
+1111111110
+0001111110
+1111111100
+0011110000
+0000111100
+0011111000
+0111111000
+0000011110
+0111111100
+0000111110
+0001111110
+0000011110
+0000011110
+0011110000
+0000111100
+0000011110
+0001111110
+0000111110
+0111110000
+0000011110
+0011111110
+&lt;/code&gt;&lt;/pre&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/maze.png&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;生成された迷宮&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;p&gt;いい感じに見えますね。こんな感じで、あとは難易度に合わせて幅を調整したりすると、迷宮がつくれそうです。&lt;/p&gt;
+
+&lt;h1 id=&#34;おしまいに&#34;&gt;おしまいに&lt;/h1&gt;
+
+&lt;p&gt;ソースコードをこんなにたくさん、重複して乗っけたのに、そんなにページを稼げませんでした。短くて、それなりに親切で、基本を抑えてる人には十分わかる話が書けたとは思っていますが。&lt;/p&gt;
+
+&lt;p&gt;このお話がわかるような人に向けて、少しだけ。こんなサボりじゃなくてちゃんとしたアルゴリズムを考えられる頭を作るほうが良いですよ、ということと、じつは上のプログラムは境界を適当に書きすぎててまだ不具合が残ってるよとかいうことをお伝えしておきます。
+ おしまい&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>マインスイーパーを作ろう</title>
+      <link>https://kyumina.github.io/jokenoffline2017/archives/2017/04/07/mine_sweeper/</link>
+      <pubDate>Fri, 07 Apr 2017 15:46:08 +0900</pubDate>
+      
+      <guid>https://kyumina.github.io/jokenoffline2017/archives/2017/04/07/mine_sweeper/</guid>
+      <description>
+
+&lt;h3 id=&#34;はじめに&#34;&gt;はじめに&lt;/h3&gt;
+
+&lt;p&gt;　プログラミングを始めて1年程度のものですがよろしくお願いいたします。&lt;/p&gt;
+
+&lt;p&gt;　これは、マインスイーパを題材にして簡単なゲームをどのように作っていけばいいかの例を示すことができたらいいなと思って書きました。
+基本的にjavaで説明していきますが開発環境の準備などについては省略させていただきます。ご了承ください。また、非効率なソースなど見苦しい点もあるかもしれませんがお許しください。&lt;/p&gt;
+
+&lt;h3 id=&#34;マインスイーパとは&#34;&gt;マインスイーパとは&lt;/h3&gt;
+
+&lt;p&gt;　まず皆さん、マインスイーパを知っていますか？windows7などに入っていたりしたので遊んだことがある人も多いと思います。
+マインスイーパは、たくさんのマスからできた盤面上にいくつかの爆弾が隠されており、爆弾のないマスには周囲にいくつの爆弾が存在するかの値が書かれています。これらのマスは最初は何も書かれていないですが、開けていくことで値がわかるようになり、これらの値をもとにして爆弾のないマスすべてを開くことができたらクリアとなる簡単なゲームです。ここでは、知っているという前提で話させていただきます。&lt;/p&gt;
+
+&lt;h3 id=&#34;コンソール版-java&#34;&gt;コンソール版(java)&lt;/h3&gt;
+
+&lt;p&gt;　まず最初に、コンソールで遊ぶことができるマインスイーパを作っていこうと思います。この時、簡単化された形からまずは考えていきたいと思います。そして、今回は簡単な形として4×4のサイズで爆弾の位置が最初から固定されているものを使います。それを以下に載せます。この時、爆弾を9という値で表し、そのほかの数を周りの爆弾の数を表すようにします。なぜ、爆弾を9という値で表すのかというと、プログラムを書いたことがあればわかると思いますが今回は整数型の二次元配列でフィールドを作るのですが、その時、周りにある爆弾の数は、理論上最大で8個まで可能性があるのでそれより大きい数もしくは、負の数を爆弾として対応させることによって爆弾を表すことができるので、今回は8より1大きい数である9を使いました。&lt;/p&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th align=&#34;center&#34;&gt;&lt;/th&gt;
+&lt;th align=&#34;center&#34;&gt;0&lt;/th&gt;
+&lt;th align=&#34;center&#34;&gt;1&lt;/th&gt;
+&lt;th align=&#34;center&#34;&gt;2&lt;/th&gt;
+&lt;th align=&#34;center&#34;&gt;3&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;0&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;1&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;1&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;1&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;9&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;1&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;1&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;9&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;3&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;2&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;2&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;2&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;3&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;9&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;1&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;3&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;9&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;2&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;1&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;1&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;このフィールドをbyte型の二次元配列として宣言しておきます。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-java&#34;&gt;byte[][] field = {
+                {1,1,1,9},
+                {1,9,3,2},
+                {2,3,9,1},
+                {9,2,1,1}
+        };
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;　次に、マインスイーパを動作させるのに必要なものを考えていきたいと思います。まず、マインスイーパはマスを開けていくためどのマスが開けられたマスかどうかを記憶しておかなければなりません。(旗はまず考えないでおきます。)そのために、boolean型のフィールドと同じサイズの二次元配列を用意して、開いていたら&lt;strong&gt;true&lt;/strong&gt;、閉じていたら&lt;strong&gt;false&lt;/strong&gt;となるようにします。これで、フィールドの準備はOKです。&lt;/p&gt;
+
+&lt;p&gt;　ほかに必要なものは、入力などを処理する部分です。これらを以下にまとめました。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;入力
+
+&lt;ul&gt;
+&lt;li&gt;座標で入力される&lt;/li&gt;
+&lt;li&gt;指定されたマスの状態を確認&lt;/li&gt;
+&lt;li&gt;状態の変更&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;出力
+
+&lt;ul&gt;
+&lt;li&gt;配列の表示&lt;/li&gt;
+&lt;li&gt;現在の状態&lt;/li&gt;
+&lt;li&gt;答え&lt;/li&gt;
+&lt;li&gt;クリア、ゲームオーバーの表示&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;判定
+
+&lt;ul&gt;
+&lt;li&gt;爆弾のないマスすべてが開いたかを調べる。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;これらを実装することで、マインスイーパはつくることができます。&lt;/p&gt;
+
+&lt;p&gt;そのほかにこれらの処理は、クリアもしくはゲームオーバーまで何度も繰り返されるのでループ処理内に記述します。&lt;/p&gt;
+
+&lt;p&gt;では、それぞれの部分を見ていきましょう。&lt;/p&gt;
+
+&lt;h6 id=&#34;入力&#34;&gt;入力&lt;/h6&gt;
+
+&lt;p&gt;　入力では、Scannnerクラスを用いて、入力を座標で入力するようにします。そして、入力された座標のマスが閉じているならば開けて閉じているならば再入力を促します。また、開けるときマスに爆弾があるならばGAMEOVERにします。そして、ループを終了します。&lt;/p&gt;
+
+&lt;p&gt;　この時、座標は m,n としました。これは、x,y としてもかまいません。変えるならば以降変えて見ていってください。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-java&#34;&gt;//Scannerクラスのインスタンスの宣言
+Scanner stdIn = new Scanner(System.in);
+
+//座標入力
+System.out.print(&amp;quot;m:&amp;quot;);
+int m = stdIn.nextInt();
+System.out.print(&amp;quot;n:&amp;quot;);
+int n = stdIn.nextInt();
+
+//フィールドの確認
+if(field[m][n] == 9){
+  System.out.println(&amp;quot;ゲームオーバーです&amp;quot;);
+}else{
+  if(openfield[m][n]){
+    System.out.println(&amp;quot;すでに開いています&amp;quot;);
+    k--;
+    continue;
+  }else{
+    openfield[m][n] = true;
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h6 id=&#34;出力&#34;&gt;出力&lt;/h6&gt;
+
+&lt;p&gt;　次に出力です。出力ではまず、配列の表示をしなければなりません。そのために二重forループを使います。そして、現在の状態の表示ではマスが開いていないなら「&lt;strong&gt;-&lt;/strong&gt;」を表示し、開いているならばそのマスが保持している数字を表示するようにします。また、答えの表示では現在の状態に関係なくすべてのマスを表示しますが、爆弾のマスは「&lt;strong&gt;*&lt;/strong&gt;」を表示するようにします。これらを実装したものを以下に載せます。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-java&#34;&gt;//フィールドの表示
+System.out.println(&amp;quot;＜＜＜開いているところ＞＞＞&amp;quot;);
+for(int i = 0; i &amp;lt; field.length; i++){
+  for(int j = 0; j &amp;lt; field[i].length; j++){
+    if(openfield[i][j]){
+      System.out.print(field[i][j]);
+    }else{
+      System.out.print(&amp;quot;-&amp;quot;);
+    }
+  }
+  System.out.println();
+}
+
+//終了時処理
+System.out.println(&amp;quot;【答え】&amp;quot;);
+for(int i = 0; i &amp;lt; field.length; i++){
+  for(int j = 0; j &amp;lt; field[i].length; j++){
+    if(field[i][j] == 9){
+      System.out.print(&amp;quot;*&amp;quot;);
+    }else{
+      System.out.print(field[i][j]);
+    }
+  }
+  System.out.println();
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h6 id=&#34;判定&#34;&gt;判定&lt;/h6&gt;
+
+&lt;p&gt;　今回はクリアしたかを判定するためにマスが開けられるたびにカウンタを1ずつ加算していき、その値が最初に設定しておく爆弾のないマスの数に等しくなった時点でクリアとする方式で行きたいと思います。&lt;/p&gt;
+
+&lt;p&gt;　これらがマインスイーパの簡略版の基本です。これらをまとめて、マインスイーパとして仕上げたものを以下に載せておきます。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-java&#34;&gt;Scanner stdIn = new Scanner(System.in);
+byte[][] field = {
+                {1,1,1,9},
+                {1,9,3,2},
+                {2,3,9,1},
+                {9,2,1,1}
+        };
+boolean[][] openfield = new boolean[4][4];
+
+for(int k = 0;; k++){
+  //座標入力
+  System.out.print(&amp;quot;m:&amp;quot;);
+  int m = stdIn.nextInt();
+  System.out.print(&amp;quot;n:&amp;quot;);
+  int n = stdIn.nextInt();
+
+  //フィールドの確認
+  if(field[m][n] == 9){
+    System.out.println(&amp;quot;ゲームオーバーです&amp;quot;);
+    break;
+  }else{
+    if(openfield[m][n]){
+      System.out.println(&amp;quot;すでに開いています&amp;quot;);
+      k--;
+      continue;
+    }else{
+      openfield[m][n] = true;
+    }
+  }
+  if(k &amp;gt;= 11){
+    System.out.println(&amp;quot;クリアです&amp;quot;);
+    break;
+  }
+  //フィールドの表示
+  System.out.println(&amp;quot;＜＜＜開いているところ＞＞＞&amp;quot;);
+  for(int i = 0; i &amp;lt; field.length; i++){
+    for(int j = 0; j &amp;lt; field[i].length; j++){
+      if(openfield[i][j]){
+        System.out.print(field[i][j]);
+      }else{
+        System.out.print(&amp;quot;-&amp;quot;);
+      }
+    }
+    System.out.println();
+  }
+  System.out.println();
+}
+//終了時処理
+System.out.println(&amp;quot;【答え】&amp;quot;);
+for(int i = 0; i &amp;lt; field.length; i++){
+  for(int j = 0; j &amp;lt; field[i].length; j++){
+    if(field[i][j] == 9){
+      System.out.print(&amp;quot;*&amp;quot;);
+    }else{
+      System.out.print(field[i][j]);
+    }
+  }
+  System.out.println();
+}
+stdIn.close();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;　これで、簡単化されたマインスイーパは完成です。&lt;/p&gt;
+
+&lt;p&gt;　しかし簡単化されたものでは、物足りないのでこれをもう少ししっかりしたものにしていきたいと思います。そのために、
+まずは、旗を立てることができるようにします。そのために、マスの状態を管理している二次元配列をboolean型のものから
+byte型のものにして、2つ以上の状態を保持できるようにします。そして、フィールドの表示でif文の分岐を増やし旗が
+立っているとき「&lt;strong&gt;P&lt;/strong&gt;」などの旗とわかる文字を表示するようにします。あと、入力の際に旗を立てるのかマスを開けるのかを
+確認するようにして入力をさせるようにして、旗を立てる部分は完成です。&lt;/p&gt;
+
+&lt;p&gt;　次に、爆弾をランダム配置してみたいと思います。そのために、Randomクラスを用いてフィールドのX座標とY座標をランダムに
+指定し、そこに爆弾がなければ爆弾を配置するという処理を設置する爆弾の数だけ行います。そして、次に問題になるのが、爆弾のない
+マスは周囲にある爆弾の数を持っていなければならないのですが、そのために、フィールドのマスを1ずつ参照していき、周囲に爆弾があれば
+そのマスが保持している値を1加算することでマスの値を求めます。その部分のソースを以下に載せます。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-java&#34;&gt;//値の設定
+for(int i = 0; i &amp;lt; field.length; i++){
+    for(int j = 0; j &amp;lt; field[i].length; j++){
+        if(field[i][j] != 9){
+            for(int k = -1; k &amp;lt;= 1; k++){
+                for(int l = -1; l &amp;lt;= 1; l++){
+                    try{
+                        if(field[i+k][j+l]==9)field[i][j]++;
+                    }catch(ArrayIndexOutOfBoundsException e){
+                    }
+                }
+            }
+        }
+    }
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;このようにすることで、簡単化されたものからある程度本格的なものになりました。&lt;/p&gt;
+
+&lt;h3 id=&#34;gui版-java-swing&#34;&gt;GUI版(java swing)&lt;/h3&gt;
+
+&lt;p&gt;GUI版の、ソースコードはここに載せるには大きいので、
+ &lt;a href=&#34;https://github.com/tadaren/MineSweeper&#34;&gt;https://github.com/tadaren/MineSweeper&lt;/a&gt;
+をみてください。そして、解説は面倒なので省きます。&lt;/p&gt;
+
+&lt;h3 id=&#34;javascript版&#34;&gt;javascript版&lt;/h3&gt;
+
+&lt;p&gt;　そして、javascriptでwebで遊べるようにしたものが以下のURLで遊べます。
+    &lt;a href=&#34;http://tadaren.webcrow.jp/Minesweeper.html&#34;&gt;http://tadaren.webcrow.jp/Minesweeper.html&lt;/a&gt;
+詳しい内容はjavaとほぼ一緒なので解説は省かせていただきます。&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>東方弾幕風で弾幕STGを作った話</title>
+      <link>https://kyumina.github.io/jokenoffline2017/archives/2017/04/07/make_danmaku/</link>
+      <pubDate>Fri, 07 Apr 2017 10:43:02 +0900</pubDate>
+      
+      <guid>https://kyumina.github.io/jokenoffline2017/archives/2017/04/07/make_danmaku/</guid>
+      <description>
+
+&lt;p&gt;制作期間：2ヵ月&lt;/p&gt;
+
+&lt;p&gt;使用ソフト：東方弾幕風&lt;/p&gt;
+
+&lt;p&gt;東方弾幕風ダウンロード元：
+&lt;a href=&#34;http://www.geocities.co.jp/SiliconValley-Oakland/9951/products/th_dnh.html&#34;&gt;http://www.geocities.co.jp/SiliconValley-Oakland/9951/products/th_dnh.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;※Windows10では動かないこともあるので動かなかったときは東方弾幕風を右クリックし、
+プロパティ＞互換性に移動し互換モードの互換モードでこのプログラムを実行するにチェックを入れ、
+下の欄でWindowsXPを選択し適用し実行してください。
+それでも動かなかった場合、管理者として実行を選択し実行してください。&lt;/p&gt;
+
+&lt;h2 id=&#34;解説&#34;&gt;解説&lt;/h2&gt;
+
+&lt;p&gt;ここでは、東方弾幕風についてスクリプトの基本的な書き方について説明していきます。
+東方弾幕風の基本操作につては東方弾幕風ダウンロード元のヘルプ関連サイトを参照してください。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;# 東方弾幕風
+# Title[弾幕の名前]
+# Text[弾幕の説明]
+# ScriptVersion[2]
+
+script_enemy_main {
+敵の動き
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;東方弾幕風では東方弾幕風のスクリプトを認識するためにスクリプトの一行目に「#東方弾幕風」と書きます。
+書かなかった場合は、スクリプトとして認識しないようになるので注意してください。
+２行目、３行目は書かなくても問題はありません。
+４行目の「# ScriptVersion[2]」はスクリプトのバージョンを表しています。
+そして、６行目の「script_enemy_main{ }」の{ }の中に敵の動作に関するスクリプトを書いていきます。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;#東方弾幕風
+#Title[弾幕の名前]
+#Text[弾幕の説明]
+#ScriptVersion[2]
+
+script_enemy_main{
+  let imgBoss = &#39;画像パス&#39;;
+  let flame = 0;
+  let angleBase = 90;
+
+  @Initialize{
+    SetX(GetCenterX); //敵の表示位置の設定(中心のX座標)
+    SetY(GetClipMinY + 120); //敵の表示位置の設定(上端のY座標から120進んだところ)
+    SetLife(2000); //敵の体力の設定(2000)
+
+    LoadGraphic(imgBoss); //敵の画像の読み込み(画像パス)
+    SetTexture(imgBoss); //敵の画像の描画(画像パス)
+    SetGraphicRect(0, 0, 63, 63); //画像の描画範囲
+  }
+
+  @MainLoop{
+    SetCollisionA(GetX, GetY, 24); //自弾と当たった時の敵の当たり判定(敵のX座標, 敵のY座標, 半径)
+    SetCollisionB(GetX, GetY, 24); //自機と当たったときの敵の当たり判定(敵のX座標, 敵のY座標, 半径)
+
+    frame++; //フレーム毎にframeに1を足す
+    if(frame % 30 == 0) { //frameが30で割り切れる時だけ実行される
+      let angle = angleBase - 10; //angleの宣言
+      loop(3) { //3回繰り返す
+        CreateShot01(GetX, GetY, 1, angle, YELLOW01, 0); //弾を生成する(弾を発射する座(X座標), 標弾を発射する座標(Y座標), 速度, 角度, 画像, 弾が実態するまでの時間)
+        angle += 10; //angleに10を足す
+      }
+      angleBase += 8; //angleBaseに8を足す
+    }
+  }
+
+  @DrawLoop{
+    DrawGraphic(GetX, GetY); //設定した情報で描画を行う(敵のX座標, 敵のY座標)
+  }
+
+  @Finalize{
+    DeleteGraphic(imgBoss); //指定した画像の描画を止める
+  }
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;最初の7行目ではC言語のように変数を宣言しています。
+変数の中は敵を描画するための画像のパスを入力してあります。
+変数を宣言することにより入力ミスを防ぐことができ、画像のパスのような面倒な入力を何度もしなくてもよくなります。&lt;/p&gt;
+
+&lt;p&gt;9行目では時間的な要素を追加するためにframeという変数を作り0を代入しています。&lt;/p&gt;
+
+&lt;p&gt;10行目では角度の基準を作るためにangleBaseという変数を作り90を代入しています。&lt;/p&gt;
+
+&lt;p&gt;「@Initialize{ }」の{ }の中には敵が出現したとき一度だけ実行されるスクリプトを書きます。&lt;/p&gt;
+
+&lt;p&gt;この中の最初の３行で敵の画像の描画位置と敵の体力を設定しています。&lt;/p&gt;
+
+&lt;p&gt;あとの３行で画像をパスから読み込み表示範囲を設定し表示の開始をしています。&lt;/p&gt;
+
+&lt;p&gt;「@MainLoop{ }」の{ }の中には敵のライフが0になるまで繰り返すスクリプトを書きます。
+※１フレームごとに繰り返されます。
+この中の最初の２行で敵の当たり判定を設定しています。&lt;/p&gt;
+
+&lt;p&gt;「frame++」はそのプログラムが実行されるたびにframeに+1されることを表しています。
+つまり、フレーム毎にframeに+1されていきます。&lt;/p&gt;
+
+&lt;p&gt;ifの中はframeが30で割り切れるときだけ実行されるようになっています。&lt;/p&gt;
+
+&lt;p&gt;ここで、angleを宣言し弾の発射角を決定します。&lt;/p&gt;
+
+&lt;p&gt;次に弾を( )の中の通りに生成しangleに10をangleBaseに8を足します。&lt;/p&gt;
+
+&lt;p&gt;「@DrawLoop{ }」の{ }の中は描画ループについてを書きます。
+※１フレームごとに繰り返されます。
+この中では敵を描画し続けるように設定しています。&lt;/p&gt;
+
+&lt;p&gt;「@Finalize{ }」の{ }の中には敵のライフが0になったときに一回だけ実行されるスクリプトを書きます。
+ここでは、体力が0になったとき敵を消すよう設定しています。&lt;/p&gt;
+
+&lt;p&gt;そして、これを実行すると敵が描画され3wayの弾を回転しながら30フレームづつ発射していきます。&lt;/p&gt;
+
+&lt;h2 id=&#34;反省点&#34;&gt;反省点&lt;/h2&gt;
+
+&lt;p&gt;・技の種類が少なかった&lt;/p&gt;
+
+&lt;p&gt;・ソースコードの管理が全くできていなかった&lt;/p&gt;
+
+&lt;p&gt;・人材管理が行き届いていなかった&lt;/p&gt;
+
+&lt;h2 id=&#34;jokenに入って&#34;&gt;Jokenに入って&lt;/h2&gt;
+
+&lt;p&gt;Jokenに入って楽しと感じたところは先輩との上下関係が厳しくないので話しやすく、
+自分の作りたいものや面白そうなものを先輩と相談しながら作れるところです。　　&lt;/p&gt;
+
+&lt;p&gt;特に、U-22や高専プロコンの事などについて考えて作るのは楽しいです。
+部活としてはかなり緩くやっているので初めて入った人も比較的早くなじめるかと思います。
+何か作りたいと考えている人はぜひjokenの部室にお立ち寄りください。&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

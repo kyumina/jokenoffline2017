@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>自作pc on JokenOffline(電子版)</title>
+    <link>https://kyumina.github.io/jokenoffline2017/tags/%E8%87%AA%E4%BD%9Cpc/index.xml</link>
+    <description>Recent content in 自作pc on JokenOffline(電子版)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>ja</language>
+    <atom:link href="https://kyumina.github.io/jokenoffline2017/tags/%E8%87%AA%E4%BD%9Cpc/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>PCの冷却のおはなし</title>
+      <link>https://kyumina.github.io/jokenoffline2017/archives/2017/04/07/neces_of_cool/</link>
+      <pubDate>Fri, 07 Apr 2017 19:49:59 +0900</pubDate>
+      
+      <guid>https://kyumina.github.io/jokenoffline2017/archives/2017/04/07/neces_of_cool/</guid>
+      <description>&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;冷却の必要性&lt;/p&gt;
+
+&lt;p&gt;「PCの発熱なんてたかがしれてるでしょ。」そう思ってはいませんか。私はそう思っていました。しかし、実際に温度を計測してみると結構熱を持っていることがわかります。特にCPUはファンを使った状態でも40°を余裕で超えることがあります。特に特にGPUは70℃に達することもあります。熱を持つとどのような悪影響があるのか。まず熱暴走が考えられます。熱暴走は熱によって電子回路に悪影響が及び、その名の通り処理が暴走することです。また、物理的に故障する場合もあります。ライトユーザーなら心配する必要はまずないですが、OCをガンガンして3Dゲームをガリガリ動かすヘビーユーザーは冷却には少しは気を配ったほうがよいでしょう。&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;個々のパーツの冷却&lt;/p&gt;
+
+&lt;p&gt;まずは、冷却が必要なパーツを一つ一つ細かく見ていきます。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;CPU&lt;/p&gt;
+
+&lt;p&gt;　冷却といったらまずはこのパーツを思い浮かべるでしょう。どのパソコンにも必ずついているのがCPUクーラーです。このCPUクーラーは、主に2つの部分に分けることができます。ヒートシンク部分とファン部分です。CPU表面に接しているプレートに熱が移動し、さらにヒートパイプに熱が移動し、さらにヒートシンクに熱が移動し、そこでファンによって冷却される仕組みです。程度の差はあれどもだいたいがこんなかんじです。&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/zu1.jpg&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;CPUクーラーの概略図(サイドフロー)&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;p&gt;　CPUクーラーにはご存じの通りCPU製造メーカーが直々に販売している純正クーラー（リテールクーラー）があります。ライトユーザーならこれで十分ですが、ヘビーユーザーとなると別売のより性能の優れているCPUクーラーを買う必要があります。また、別売のCPUクーラーの大半はファンを汎用のケースファンで取り換え可能なものが大半です。より冷却、静穏にすぐれるファンに取り換えることも可能なのです。&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/zu2.jpg&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;メーカー純正のリテールクーラー。見ての通りトップフローである。&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;p&gt;　CPUクーラーは形状によって大きく二種類に分けることができます。サイドフローとトップフローです。名前から察しがつくと思いますが、サイドフローはファンがマザーボードに対して直角に、トップフローは平行に取り付けられています。それぞれに利点と欠点があります。&lt;/p&gt;
+
+&lt;p&gt;　サイドフローはゲーミングPCに向いているといえます。背が高い分ヒートシンクの表面積が増え、大型のファンを搭載することで冷却性能を高めることができます。そして個人的に一番の利点だと思うのは、ケース内で空気の流れを作り出すことができることです。サイドフローは前面から背面に空気が流れます。この流れをケース内でうまく配置してやると、ケース全体で前面から背面への空気の流れを作ることができます。ケース内の空気の流れについては後ほど触れていきます。もちろん欠点もあります。まず背が高い分ケース内に収まらないことがあるということです。特にミニタワーのケースでは厳しくなってくるでしょう。ミドルタワーでぎりぎりといったところでしょうか。また、空気がマザーボードに対して平行に流れるのでマザーボード上にある他のパーツ（RAMなど）を冷却することが困難になります。&lt;/p&gt;
+
+&lt;p&gt;　トップフローはリテールクーラーに代表されるものです。ファンがマザーボードに対して平行に取り付けられているので背が低い分省スペースになりやすく、ミニタワーといったITXのPCに向いています。また空気の流れがマザーボードに垂直に当たるのでマザーボード上の他のパーツの冷却に期待できます。欠点としては、まず空気の流れがマザーボードに垂直なため、ケース内の前面から背面への空気の流れを阻害してしまいます。またケース側面に空気取り込み穴がないと冷却の効果が薄まります。個人的に一番致命的なのは、非常に取り付けが面倒だということです。ファンの直径はCPUファン取り付けの穴の対角線の長さより当然大きくなります。そのため取り付けるときにヒートシンクの下に指を入れ込む形になり非常に取り付けにくくなります。&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/zu3.jpg&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;トップフローの上面図。CPUクーラーの固定穴よりラジエーターのほうが大きい。&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;GPU&lt;/p&gt;
+
+&lt;p&gt;　GPUの冷却性能は販売されているグラフィックボードによって依存します。メーカー純正の場合はファンが一つのことが多いですが、他のメーカーが販売している場合はファンが二つついていることが多く、OCモデルとなると三つついてくる場合もあります。GPUを選択したら、クロックのほかに、ファンの冷却性能や静音性を調べてみてはどうでしょうか。&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/zu4.jpg&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;Nvidia純正のグラボ。ファンが一つである。&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/zu5.jpg&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;ASUS製のグラボ。GPUは図4と同じだがファンが三つついている。&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;ストレージ&lt;/p&gt;
+
+&lt;p&gt;　SSDやHDDも熱を持ちますが、専用の冷却パーツを取り付ける必要はないでしょう。ケース内の空気の流れで十分です。しかし、後述するM.2 SSDは別です。&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;M.2 SSD&lt;/p&gt;
+
+&lt;p&gt;　M.2 SSDは転送規格にPCI Expressを用いることでSATAでは考えられないような転送速度を実現した新世代のストレージですが、冷却には要注意、いや、要要注意です。処理速度が高まった分発熱がバカにならないほど高く、個別の冷却パーツは必須です。&lt;/p&gt;
+
+&lt;p&gt;筆者も用いているおすすめの方法は、ヒートシンクをのっけるだけ。これだけです。非常に単純ですがこれだけで冷却性能が格段に向上します。できるだけ大きなヒートシンクを使いましょう。&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/zu6.jpg&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;M.2 SSDとヒートシンク。大きなヒートシンクを使ったほうが冷却性能は当然高まる。&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;p&gt;　さらに冷却性能を追求したい場合は、小型ファンを追加するとよいでしょう。このファンでヒートシンクを冷やしてあげることでさらに冷却性能が向上します。&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/zu7.jpg&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;ヒートシンクの上に小型ファンを挟んだ例。冷却性能により磨きがかかった。&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;p&gt;しかし注意点がひとつ。クリップ式のファンを用いてヒートシンクに止める場合、自重で落下する場合があります。また、基板上にシールが貼ってあり、その上からヒートシンクを乗せた場合は、ヒートシンクがシールごとはがれる場合があります。&lt;/p&gt;
+
+&lt;p&gt;　最近SilverStoneからM.2 SSD専用のサーマルパッドが発売されました。性能はまだまだ未知数なので、だれか筆者の人柱となって性能を確認してください。&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;ケース全体での冷却&lt;/p&gt;
+
+&lt;p&gt;　ケース全体での冷却を考える場合、「ケース内の空気の流れ」と「正圧と負圧」です。二つめの正圧と負圧はぶっちゃけ気にしなくていいのでパパっと終わらせます。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;ケース内の空気の流れ&lt;/p&gt;
+
+&lt;p&gt;　ケース全体での冷却で重要になってくるのは、「ケース内で風の流れを作る」ことです。しっかりと風が通り抜けるようにしないと、「全部吸い込むようにケースファンを取り付けてしまった」なんてことになるととんでもないことになります。
+これからいくつかの図を使って風の流れを説明しますが、赤は吸い出し用ファンの風の流れ、青は吐き出し用のファンの風の流れを表します。矢印の太さは通る風の流れの量を表しています。なお、図には5インチ米や3.5インチベイが描かれていませんが決して手抜きではありません。えぇ、手抜きなんかじゃありません。&lt;/p&gt;
+
+&lt;p&gt;まず、一つ目は一般的なケースです。&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/zu8.jpg&#34; /&gt;
+    
+    
+&lt;/figure&gt;
+
+
+&lt;p&gt;一般的なケースは購入時に後ろにファン一つが搭載されている状態です。まあグラボも高性能CPUも使うつもりがないならこれで十分なわけです。しかし、ゲーミングではGPUもCPUもバリバリ使っていくのでこれでは少し苦しいわけです。そこでファンを一つ追加してみます。&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/zu9.jpg&#34; /&gt;
+    
+    
+&lt;/figure&gt;
+
+
+&lt;p&gt;前面に直径の大きなファンを追加してみました。これでずいぶん冷却性能が上がりました。前面のケースファンはうまくいけばHDDも冷却することができます。そしてここにあるものを追加してみます。&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/zu10.jpg&#34; /&gt;
+    
+    
+&lt;/figure&gt;
+
+
+&lt;p&gt;かなり大きいですね。グラボです。（今回はファンが二つ付いているものを想定しています。）このグラボが追加されるだけで一気に窮屈さが増します。スペックの低いグラボだとこのままでも大丈夫ですが、スペックの高いグラボだと少々風が不足する場合もあります。そのような場合は底面にケースファンを追加してみましょう。&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/zu11.jpg&#34; /&gt;
+    
+    
+&lt;/figure&gt;
+
+
+&lt;p&gt;底面のケースファンによりグラボにも十分な風がいきわたるようになりました。これで十分なのですが、さらに冷却を求める場合は上面に排気用のケースファンを追加するのも良いでしょう。&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/zu12.jpg&#34; /&gt;
+    
+    
+&lt;/figure&gt;
+&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;正圧と負圧&lt;/p&gt;
+
+&lt;p&gt;　名前から察しがつくと思いますが、圧力のお話です。といってもそこまで難しくはありません。超簡単です。なのでパパっとやって、終わりっにしましょう。&lt;/p&gt;
+
+&lt;p&gt;　正圧とは、ケース内の圧力が部屋の圧力より高い状態です。つまりパンパンなわけですね。空気というのは圧力の高いところから低いところに移動するのでケース内の空気はケース内から部屋に移動します。逆に負圧はケース内の圧力が部屋の圧力より低い状態です。空気は部屋からケース内に移動します。この正圧と負圧でどうちがうの？ということですが、ぶっちゃけあまりかわりません。正圧の場合空気がケースの隙間から漏れ出すからほこりが入らないといわれていますが、正直微妙なところです。また時間があったらいろいろ調べてみたいと思っていますが、たいした戦果は得られないでしょう。かなり微妙なところですから。&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;おわりに&lt;/p&gt;
+
+&lt;p&gt;　さて、このような冷却に関することは実際にCPUやGPUの温度を測定しながら試行錯誤してもいいのですが残念ながら筆者にそのようなことをする時間はありません（大嘘）。時間があったらぜひやってみたいです。&lt;/p&gt;
+
+&lt;p&gt;　現在筆者はパーツ選びの指南書なんかもつくっています。そちらでは各パーツのおすすめメーカーなどを挙げています。きになる方はぜひJokenに来てくださいね！&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

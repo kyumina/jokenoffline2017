@@ -1,0 +1,729 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Windows on JokenOffline(電子版)</title>
+    <link>https://kyumina.github.io/jokenoffline2017/tags/windows/index.xml</link>
+    <description>Recent content in Windows on JokenOffline(電子版)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>ja</language>
+    <atom:link href="https://kyumina.github.io/jokenoffline2017/tags/windows/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Direct3Dに対するWallHack</title>
+      <link>https://kyumina.github.io/jokenoffline2017/archives/2017/04/07/how_to_wallhack/</link>
+      <pubDate>Fri, 07 Apr 2017 20:31:38 +0900</pubDate>
+      
+      <guid>https://kyumina.github.io/jokenoffline2017/archives/2017/04/07/how_to_wallhack/</guid>
+      <description>
+
+&lt;h1 id=&#34;概要&#34;&gt;概要&lt;/h1&gt;
+
+&lt;p&gt;　本記事では、Windows環境で、Direct3Dを採用したアプリケーションに対してMid-Function Hookを行うことにより、簡易的なWallhackを実装する。対象とするアプリケーションはDirect3D9のサンプルとして付属するプログラムで、Wallhackにより特定のオブジェクトのテクスチャを赤色に変更する。なお、一般的なWallhackが搭載する、オブジェクトを最前面に描画する処理については本記事では実装しない。&lt;/p&gt;
+
+&lt;h1 id=&#34;注意&#34;&gt;注意&lt;/h1&gt;
+
+&lt;h2 id=&#34;読者へのお願い&#34;&gt;読者へのお願い&lt;/h2&gt;
+
+&lt;p&gt;　本記事ではゲームの不正行為として使用できる技術について説明するが、法律で許可される範囲で実験するように注意されたい。また、本記事はそのような行為を助長するためでなく、この分野が非常に幅広い技術を応用していることから、スキルアップのための教材として優れていると考えたために記事とした。実際に各自の環境で本記事の内容を試す場合は、自分でビルドしたものなど、必ずWallhackが許可されたアプリケーションに試すこと。&lt;/p&gt;
+
+&lt;h2 id=&#34;本記事の対象者&#34;&gt;本記事の対象者&lt;/h2&gt;
+
+&lt;p&gt;　本記事を読むだけでWallhackについて十分に理解することは難しいかもしれないが、分からない部分はインターネットで調べながら読んでほしい。その上で、次のような方は少し理解しやすいかもしれない。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Windowsに慣れ親しんでいる&lt;/li&gt;
+&lt;li&gt;C, C++がある程度読める（特にポインタの理解）&lt;/li&gt;
+&lt;li&gt;アセンブリがある程度読める（Intel x86）&lt;/li&gt;
+&lt;li&gt;DLLの用途と原理を知っている&lt;/li&gt;
+&lt;li&gt;エンディアンについて知っている&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&#34;原理&#34;&gt;原理&lt;/h1&gt;
+
+&lt;h2 id=&#34;wallhack&#34;&gt;Wallhack&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;Wallhack&lt;/strong&gt; とは、3Dゲーム（特にFirst Person Shooting）に対するチート行為の一種である。Wallhackでは一般的に、Direct3DやOpenGLなどのAPIをフックすることにより、プログラムに任意の処理を割り込ませる。それにより、敵キャラクターなどの特定のオブジェクトを常に最前面に描画するなどし、敵の位置を把握しやすいようにできる。また、本記事で実装するように、特定のオブジェクトが目立つようにテクスチャを派手なものに変更することを、カメレオン（Chameleon）から取って &lt;strong&gt;Chams&lt;/strong&gt; と呼ぶ。なお、本記事では先に述べたように後者についてのみ実装する。&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/example_of_wallhack.png&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;Wallhackされた3Dのゲームの例&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;blockquote&gt;
+&lt;p&gt;Left 4 Dead 2 assistantによるWallhack Modより引用&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&#34;仮想関数テーブル&#34;&gt;仮想関数テーブル&lt;/h2&gt;
+
+&lt;p&gt;　C言語などでコンパイルするとき、関数は実行ファイル上で絶対的なアドレスに配置される。一方クラスを使用すると、変数と同じ扱いになるため、メソッドはメモリ上のランダムな位置に展開されることになる。（関数も実行時にはランダムな位置に配置されるが、これは容易に特定できる。）そこでプログラムがメソッドにアクセスするとき、仮想関数テーブル（&lt;strong&gt;vTable&lt;/strong&gt;）と呼ばれる表を参照してメソッドのアドレスを特定する。&lt;/p&gt;
+
+&lt;h2 id=&#34;dllインジェクション&#34;&gt;DLLインジェクション&lt;/h2&gt;
+
+&lt;p&gt;　外部から、あるプロセスの中で特定の処理を割り込ませたいとき、1つの方法として&lt;strong&gt;DLLインジェクション&lt;/strong&gt;と呼ばれる手法がある。これは、任意の処理を実装したDLLを特定のプロセスに読み込ませることにより、そのプロセスの内部で処理を実行する方法である。Windowsの場合、CreateRemoteThreadという関数が用意されており、これは特定のプロセス上で、引数が1つの関数を呼び出すことができるという不思議な関数である。一方LoadLibrary関数は、DLLのパスを引数とする1引数の関数で、その関数を呼び出したプロセスにDLLをロードする。したがって、CreateRemoteThread関数を使い特定のプロセスでLoadLibrary関数を実行させることにより、任意のDLLをロードすることができる。これがWindowsにおける一般的なDLLインジェクションの方法である。&lt;/p&gt;
+
+&lt;h2 id=&#34;フック&#34;&gt;フック&lt;/h2&gt;
+
+&lt;p&gt;　あるプログラムの特定の関数やメソッドの呼出時に任意の動作を割り込ませたいとき、その処理から任意のコードにジャンプするように書き換えることを「&lt;strong&gt;フックする&lt;/strong&gt;」と呼ぶ。特に、処理の途中で自分の用意したコードにジャンプするような機械語を挿入する技術を&lt;strong&gt;detours&lt;/strong&gt;(迂回)などと呼ぶ。例えば以下のような処理があったとする。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-asm&#34;&gt;function:
+76FA13F2: push ebp
+76FA13F3: mov ebp, esp
+76FA13F5: push esi
+76FA13F6: mov esi, [ebp + 8]
+76FA13F9: cmp esi, -C
+76FA13FC: jnb 76FA45FB
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;　これを次のように変更することで、元のプログラムに影響を与えずに任意のコードへジャンプすることができる。（jmpの設置場所と機械語の命令長に注意してnopなどを配置すること。）&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-asm&#34;&gt;function:
+76FA13F2: push ebp
+76FA13F3: mov ebp, esp
+76FA13F5: push esi
+76FA13F6: jmp [hook_function]
+76FA13FB: nop
+76FA13FC: jnb 76FA45FB
+...
+
+hook_function:
+06201000: [My Program]
+06201XXX: mov esi, [ebp + 8]
+06201XXX: cmp esi, -C
+06201XXX: jmp 76FA13FC
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;　このように、処理の途中で任意の処理にジャンプさせるようなフックを&lt;strong&gt;Mid-Function Hook&lt;/strong&gt;と呼ぶ。なお、レジスタを破壊してしまう場合は、hook_functionにpushadやpushfdを利用してスタックに退避しておくと安全である。&lt;/p&gt;
+
+&lt;p&gt;　DLLインジェクションは任意の処理を他プロセスで実行するのに対して、フックは既存の処理が呼び出されたときに任意の処理を割込ませるという違いがある。したがって、フックでは関数やメソッドが呼び出されたときの引数が取得できるという利点もある。&lt;/p&gt;
+
+&lt;h1 id=&#34;前提条件&#34;&gt;前提条件&lt;/h1&gt;
+
+&lt;p&gt;本記事で使用する環境について、特に重要な部分を下の表に示した。&lt;/p&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th align=&#34;center&#34;&gt;情報&lt;/th&gt;
+&lt;th align=&#34;center&#34;&gt;実験環境&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;OS&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;Windows 10 x86&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;コンパイラ&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Visual C++ 2015&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;エディタ&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;Visual Studio 2015&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;使用ライブラリ&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;DirectX 3D (June 2010)&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;使用ツール&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;うさみみハリケーン、DebugView、IDA Pro&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;Wallhack対象&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;DirectXのサンプルプログラム&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;Visual C++は特にインラインアセンブリに非常に長けており、直感的にアセンブリを書くことができるため、今回のような低レイヤな部分を扱うときには大変便利である。また、今回のプログラムはWindowsのバージョンよりもDirect3Dのバージョンに大きく関わるため、各環境によってプログラムの細かい部分が違ってくることに注意されたい。（本記事のプログラムは上記環境で実装したが、Windows 7 x86でもWallhackに成功した。）&lt;/p&gt;
+
+&lt;h1 id=&#34;endsceneメソッドをフックする&#34;&gt;EndSceneメソッドをフックする&lt;/h1&gt;
+
+&lt;p&gt;Direct3Dでは、レンダリングの終了を知らせるEndSceneメソッドがあり、これは画面を更新するごとに呼び出される。この章では、EndSceneをフックすることで、先に特定の文字列を最前面に描画してから本来のEndScene機能を呼び出すように処理を変更する。&lt;/p&gt;
+
+&lt;h2 id=&#34;デバッグ方法&#34;&gt;デバッグ方法&lt;/h2&gt;
+
+&lt;p&gt;　今回はDLLインジェクションにより外部でコードを実行する。このようなときに簡単にプログラムの状況を確認できるのがOutputDebugString関数である。例えばDWORD型の値を確認する場合、次のようなコードを挿入する。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-asm&#34;&gt;TCHAR str[64] = TEXT(&amp;quot;&amp;quot;);
+  wsprintf(str, TEXT(&amp;quot;0x%x&amp;quot;), value);
+  OutputDebugString(str);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;　これを確認するのがDebugViewというツールである。このツールではOutputDebugStringにより出力された文字列を取得して表示できる。&lt;/p&gt;
+
+&lt;h2 id=&#34;dllインジェクションを試す&#34;&gt;DLLインジェクションを試す&lt;/h2&gt;
+
+&lt;p&gt;　まずは自分でDLLを作り、それを対象のプロセスにロードできるかを確認する。今回はDLLを作るだけで、インジェクションはうさみみハリケーン&lt;sup class=&#34;footnote-ref&#34; id=&#34;fnref:1&#34;&gt;&lt;a rel=&#34;footnote&#34; href=&#34;#fn:1&#34;&gt;1&lt;/a&gt;&lt;/sup&gt; というツールを使用する。&lt;/p&gt;
+
+&lt;p&gt;　新規DLLプロジェクトの作成方法は各自調べてもらいたいが、Win32プロジェクトにすること、空のプロジェクトにすることだけは注意してほしい。プロジェクトに適当なファイル名でcppファイルを作成する。本記事では全ての処理をこのcppファイルに記述する。以下がDLLインジェクション確認用の最低限のプログラムである。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#include &amp;lt;windows.h&amp;gt;
+BOOL WINAPI DllMain(HINSTANCE hModule,
+                    DWORD fdwReason,
+                    LPVOID lpvReserved)
+{
+    if (fdwReason == DLL_PROCESS_ATTACH) {
+        DisableThreadLibraryCalls(hModule);
+        MessageBox(NULL,
+                   TEXT(&amp;quot;Injection Test&amp;quot;),
+                   TEXT(&amp;quot;Debug&amp;quot;),
+                   MB_OK);
+    }
+    return TRUE;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;　プログラムについて詳しくは説明しないが、DLLがロードされるとメッセージボックスが表示されるコードである。&lt;/p&gt;
+
+&lt;p&gt;　プロジェクトをビルドするとDLLが出力される。ロード対象のプロセスとうさみみハリケーンを起動し、うさみみハリケーンで対象プロセスにアタッチし、メニューバーの「デバッグ」から「DLLのロードとアンロード」を選ぶ。&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/usamimi_dll_load.png&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;うさみみハリケーン DLLのロードとアンロード&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;p&gt;　DLLパスに先程コンパイルしたDLLを選択し、「ロード実行」ボタンでDLLをロードしてくれる。ロードと同時に、次のようにメッセージボックスが表示されたらDLLインジェクションは成功である。&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/dll_injection_test.png&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;DLLインジェクションにより任意の処理を実行できた&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;p&gt;　またここでは記述していないが、Visual StudioのプロジェクトのプロパティでインクルードディレクトリやライブラリディレクトリにDirect3Dのパスを追加しておく必要がある。先頭に次のライブラリ使用宣言を記述してもエラーにならなければ正しくパスは設定できている。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#include &amp;lt;d3d9.h&amp;gt;
+#include &amp;lt;d3dx9.h&amp;gt;
+#pragma comment(lib, &amp;quot;d3d9.lib&amp;quot;)
+#pragma comment(lib, &amp;quot;d3dx9.lib&amp;quot;)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;　なお、パスを設定するとき、もしくはプロジェクトをビルドするときに、プロパティとビルドがそれぞれReleaseもしくはDebugで統一されていないとエラーになる。また、本記事では全て32bitを想定しているので、x86用にビルドすること。&lt;/p&gt;
+
+&lt;h2 id=&#34;vtableを探索する&#34;&gt;vTableを探索する&lt;/h2&gt;
+
+&lt;p&gt;　DLLインジェクションが成功したということは、それ以降は通常のプログラム同様に対象プロセスの内部を操作することができる。そこでまず最初に必要なのが、EndSceneのアドレスを持つIDirect3DDevice9クラスのvTableである。vTableさえ手に入れば、vTableからメソッドのアドレスが全て取得できる。残念ながらvTableの場所は分からないため、今回はこれを探索するプログラムを書いた。Direct3Dのライブラリ内にはvTableを参照するコードとして次のような処理が存在する。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-asm&#34;&gt;...
+33C0          : xor eax, eax
+C760 XXXXXXXX : mov [esi], d3d9.dll+XXXXXXXX ; vTable
+8986 XXXXXXXX : mov [esi+XXXXXXXX], eax
+8986 XXXXXXXX : mov [esi+XXXXXXXX], eax
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;　C760の後の4バイトがvTableのアドレスである。このような機械語を持つパターンを探索する方法が一般的であるので、本記事でもこのコードを探索した。なお、このコードはd3d9.dllがロードされた先に存在し、そのアドレスはGetModuleHandle関数により分かるので、メモリのごく一部を探索するだけで見つかる。以下にvTableを探索する関数を示す。なお、hD3DはGetModuleHandleにより取得したd3d9.dllのロード先アドレスである。また、変数vTalbeはDWORD型で、グローバル変数として定義している。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;VOID GetVTableAddr(DWORD hD3D)
+{
+    // モジュールのロード先から探索する
+    for (DWORD i = 0; i &amp;lt; 0x128000; i++) {
+        BOOL match = *(WORD*)(hD3D + i) == (WORD)0x06C7
+            &amp;amp;&amp;amp; *(WORD*)(hD3D + i + 6) == (WORD)0x8689
+            &amp;amp;&amp;amp; *(WORD*)(hD3D + i + 12) == (WORD)0x8689;
+        if (match) {
+            DWORD oldProtection;
+            VirtualProtect(&amp;amp;vTable,
+                           4,
+                           PAGE_EXECUTE_READWRITE,
+                           &amp;amp;oldProtection);
+            CopyMemory(&amp;amp;vTable, (void*)(hD3D + i + 2), 4);
+            VirtualProtect(&amp;amp;vTable,
+                           4,
+                           oldProtection,
+                           &amp;amp;oldProtection);
+            break;
+        }
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;　これによりvTableが取得できるが、テーブルのポインタがどのメソッドを表しているかはIDA Proなどでd3d9.dllを解析することにより容易に分かる。例えば今回フックするEndSceneの場合、IDA ProでEndSceneという名前を調べると、vTable上の関数が並んでいる。（これよりEndSceneはvTable[42]でアクセスできることが分かる。）&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/ida_vtable.png&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;IDA Proが見つけたvTableの構造&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;p&gt;　また、このような情報はインターネットで検索するとすぐに出てくるが、環境によって大きく異なる場合もあるので、自分の環境でも確認しておくことを推奨する。&lt;/p&gt;
+
+&lt;h2 id=&#34;メソッドをフックする&#34;&gt;メソッドをフックする&lt;/h2&gt;
+
+&lt;p&gt;　vTableが取得できたら、次にメソッドをフックする。今回はEndScene(vTable[42])をフックする。まずはvTable[42]の値をDebugViewなどで調べて、そのアドレスにうさみみハリケーンでアクセスする。うさみみハリケーンには逆アセンブルツールが付いている。メニューバーの「デバッグ」の「選択範囲を逆アセンブル」でEndSceneの処理を見てみる。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-asm&#34;&gt;EndScene:
+6A 20       : push 0x20
+B8 XXXXXXXX : mov eax, XXXXXXXX
+E8 XXXXXXXX : call XXXXXXXX
+8B7D 08     : mov edi, [ebp + 0x8]
+33F6        : xor esi, esi
+85FF        : test edi, edi
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;　これは環境によって大きく異なるので必ず自分で確認する必要がある。今回はこれを次のように書き換える。なお、dwEndScene_retはこの場合「test edi, edi」のアドレスである。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-asm&#34;&gt;EndScene:
+6A 20       : push 0x20
+B8 XXXXXXXX : mov eax, XXXXXXXX
+E8 XXXXXXXX : call XXXXXXXX
+E9 XXXXXXXX : jmp hook_EndScene
+85FF        : test edi, edi
+...
+
+hook_EndScene:
+;;
+;; Put New EndScene Here
+;;
+8B7D 08     : mov edi, [ebp + 0x8]
+33F6        : xor esi, esi
+E9 XXXXXXXX : jmp dwEndScene_ret
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;　jmpを入れる場所は必ず最低5バイトは上書きする必要がある。今回はちょうど5バイトを上書きしたが、例えば6バイトを潰す必要がある場合はnopなどで埋めると良い。また、原理で説明したように元の処理を迂回先に記述する必要がある。さらに、今回は必要無いが、jmpを挿入する場所によってはpushadやpushfdなどを使用してレジスタの状態を保存しておかないと、新しいEndSceneでレジスタが破壊されてプロセスがクラッシュする場合もある。&lt;/p&gt;
+
+&lt;p&gt;さて、まずはjmpコードを挿入するプログラムを以下に示す。なお、hookAddrはフックする関数のポインタ、jmpAddrはジャンプ先のアドレス、sizeはjmpで潰す命令のコード長を指定する。また、jmp命令のジャンプ先アドレスは、機械語ではjmp命令からの相対アドレスになることに注意されたい。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;VOID MakeMFH(PBYTE hookAddr, DWORD jmpAddr, DWORD size)
+{
+    DWORD oldProtect, relativeAddr;
+    VirtualProtect(hookAddr,
+                   size,
+                   PAGE_EXECUTE_READWRITE,
+                   &amp;amp;oldProtect);
+    // 相対アドレスに変換
+    relativeAddr = (DWORD)(jmpAddr - (DWORD)hookAddr) - 5;
+    // E9 XX XX XX XX : jmp [XXXXXXXX]
+    *hookAddr = 0xE9;
+    *((DWORD *)(hookAddr + 1)) = relativeAddr;
+    // NOPで埋める
+    for (DWORD x = 0x5; x &amp;lt; size; x++) *(hookAddr + x) = 0x90;
+    VirtualProtect(hookAddr,
+                   size,
+                   oldProtect,
+                   &amp;amp;oldProtect);
+    return;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;　今回は少しでも汎用的にするために、上書きする命令が5バイトでなくても動作するように5バイト目以降はnopで埋めるようにした。
+次に、フックによりジャンプする先の処理を以下に示す。「__delcspec(naked)」を記述すると、コンパイラが通常関数の先頭に入れる余計な命令を入れないようにできる。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;__declspec(naked) void hook_EndScene()
+{
+    static LPDIRECT3DDEVICE9 pDevice;
+    // pDeviceを取得する
+    __asm {
+        mov edi, [ebp + 0x8]
+        mov pDevice, edi;
+    }
+    // 用意した処理を呼び出す
+    my_EndScene(pDevice);
+    // 上書きした命令を実行してから元の場所に戻る
+    __asm {
+        mov edi, [ebp + 0x8]
+        xor esi, esi
+        jmp EndScene_ret;
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;　このプログラムから分かるように、Visual Studioのインラインアセンブリは非常に直感的で、変数も直接アセンブリに書くことが許される。EndSceneメソッドを持つクラスであるIDirect3DDevice9を指すポインタは、この時[ebp+0x8]に存在する。これについては、同様のコードは調べればいくらでも見つかる上、この引数の場所に関しては私の知る限りx86では環境に依存せずebp+0x8である。(ちなみに第一引数はebp+0xC、第二引数はebp+0x10と続く。)このフックさえ正しく書ければ最大の山は乗り越えたであろう。（多くの場合はここでつまずく。）次の節ではmy_EndSceneについて説明する。&lt;/p&gt;
+
+&lt;h2 id=&#34;任意の文字列を描画する&#34;&gt;任意の文字列を描画する&lt;/h2&gt;
+
+&lt;p&gt;my_EndScene関数では取得したpDeviceを元に、普通のDirect3Dプログラミング同様に様々な処理を実行できる。今回は文字列を描画するので、フォントを生成して文字を書く処理を用意した。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;VOID WINAPI my_EndScene(LPDIRECT3DDEVICE9 pDevice)
+{
+    LPD3DXFONT pFont;
+    D3DXCreateFont(pDevice,
+                   18,
+                   0,
+                   FW_BOLD,
+                   1,
+                   0,
+                   DEFAULT_CHARSET,
+                   OUT_DEFAULT_PRECIS,
+                   DEFAULT_QUALITY,
+                   DEFAULT_PITCH | FF_DONTCARE,
+                   TEXT(&amp;quot;Arial&amp;quot;),
+                   &amp;amp;pFont);
+    // 文字列を描画
+    RECT rect;
+    SetRect(&amp;amp;rect, 32, 32, 32, 32);
+    pFont-&amp;gt;DrawText(NULL,
+                    TEXT(&amp;quot;Wallhack is enabled.&amp;quot;),
+                    -1,
+                    &amp;amp;rect,
+                    DT_NOCLIP | DT_LEFT,
+                    D3DCOLOR_ARGB(255, 255, 000, 000));
+    pFont-&amp;gt;Release();
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;組み合わせる&#34;&gt;組み合わせる&lt;/h2&gt;
+
+&lt;p&gt;　ここまでで作成した関数はDllMainからは呼び出さない。新しくスレッドを作成する。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-asm&#34;&gt;VOID MyHook()
+{
+    // d3d9.dllをメモリに展開する
+    DWORD hD3D = (DWORD)GetModuleHandle(TEXT(&amp;quot;d3d9.dll&amp;quot;));
+    if (hD3D == NULL) return;
+    // vTableのアドレスを探索する
+    GetVTableAddr(hD3D);
+    /*
+        EndSceneメソッドの中間にdetourを作成する
+            EndScene+0Ch : 8B7D 08 : mov edi, [ebp + 8h]
+            EndScene+0Fh : 33f6    : xor esi, esi
+            --&amp;gt; jmp [hook_EndScene]
+    */
+    EndScene_hook = vTable[42] + 0xC;
+    EndScene_ret = EndScene_hook + 5;
+    MakeMFH((PBYTE)EndScene_hook, (DWORD)hook_EndScene, 3 + 2);
+}
+
+BOOL WINAPI DllMain(HINSTANCE hModule,
+                    DWORD fdwReason,
+                    LPVOID lpvReserved)
+{
+    if (fdwReason == DLL_PROCESS_ATTACH)
+    {
+        DisableThreadLibraryCalls(hModule);
+        CreateThread(NULL,
+                     NULL,
+                     (LPTHREAD_START_ROUTINE)MyHook,
+                     NULL,
+                     NULL,
+                     NULL);
+    }
+    return TRUE;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;　これら全てをまとめたプログラムは次のURLからダウンロードできる。&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/qr_code1.png&#34; /&gt;
+    
+    
+&lt;/figure&gt;
+
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;a href=&#34;https://github.com/ptr-yudai/jokenoffline/blob/master/wallhack01.cpp&#34;&gt;https://github.com/ptr-yudai/jokenoffline/blob/master/wallhack01.cpp&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;　早速実行してみよう。対象とするプログラムはDirect3Dのサンプルにある「ShadowMap.exe」である。DLLインジェクションにより作成したDLLをロードさせると、図に示したようにフックが成功していることが確認できる。&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/wallhack_test_1.png&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;EndSceneのフックによる文字列の描画&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;p&gt;　図から分かるように、my_EndSceneが実行されて「Wallhack is enabled.」という文字列が左上に大きく表示されている。&lt;/p&gt;
+
+&lt;h1 id=&#34;wallhackする&#34;&gt;Wallhackする&lt;/h1&gt;
+
+&lt;p&gt;　ここまではEndSceneをフックして、できるだけ簡単にフックが成功していることを確認した。ここからはWallhackの本題である「特定のオブジェクトのテクスチャを目立つ色に変更する」という処理を作る。&lt;/p&gt;
+
+&lt;h2 id=&#34;dipをフックする&#34;&gt;DIPをフックする&lt;/h2&gt;
+
+&lt;p&gt;　DIPとはDrawIndexedPrimitiveメソッドのことで、物体をレンダリングするためのメソッドである。Direct3Dをフックする方法によるWallhackでは必ずといってよいほどDrawIndexedPrimitiveメソッドがフックされるので、DIPという略称がしばしば使われる。&lt;/p&gt;
+
+&lt;p&gt;　さて、DIPのフックもEndSceneと基本的に変わらない。vTableからのオフセットを調べ、そのアドレスを逆アセンブルしてMid-Function Hookのための計画を立てる。私の環境ではvTable[82]にDrawIndexedPrimitiveメソッドがあった。（D3D9ならどの環境でも同じ場所にあるだろう。）また、DrawIndexedPrimitiveメソッドは次のようになっていた。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-asm&#34;&gt;DIP+00h : 8BFF    : mov edi, edi
+DIP+02h : 55      : push ebp
+...
+DIP+2Dh : 8965 F0 : mov [ebp-0x10], esp
+DIP+30h : 8B75 08 : mov esi, [ebp+0x8]
+DIP+33h : 85F6    : test esi, esi
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;　個人的な流儀で「mov reg, [ebp+0x8]」のところ（pDeviceを取得したところ）にjmpを配置するようにしているが、実行される部分であればどこでもよい。私の環境ではDIPの先頭から0x30の地点にこれがあるので、ここをjmpで上書きする。DIP+30hは3バイトで、DIP+33hは2バイトなので、これで丁度jmp命令の5バイトが上書きされる。（つまり、nopは必要ない。）前に作成した関数を使用すると、フックは次のように書ける。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-asm&#34;&gt;DrawIndexedPrimitive_hook = vTable[82] + 0x30;
+DrawIndexedPrimitive_ret = DrawIndexedPrimitive_hook + 5;
+MakeMFH((PBYTE)DrawIndexedPrimitive_hook,
+        (DWORD)hook_DrawIndexedPrimitive,
+        3 + 2);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;　次にhook_DrawIndexedPrimitive関数を作るのだが、ここで注意したいのが、DIPは引数を取るということである。具体的にはDIPは次のように定義される。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-asm&#34;&gt;HRESULT DrawIndexedPrimitive(
+    D3DPRIMITIVETYPE Type,
+    INT BaseVertexIndex,
+    UINT MinIndex,
+    UINT NumVertices,
+    UINT StartIndex,
+    UINT PrimitiveCount
+);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;以前に説明したようにebp+0x8がpDeviceで、第一引数はebp+0xCから始まる。これを考慮したhook_DrawIndexedPrimitive関数は次のようになる。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-asm&#34;&gt;__declspec(naked) void hook_DrawIndexedPrimitive()
+{
+    static LPDIRECT3DDEVICE9 pDevice;
+    static D3DPRIMITIVETYPE pType;
+    static INT BaseVertexIndex;
+    static UINT MinIndex;
+    static UINT NumVertices;
+    static UINT StartIndex;
+    static UINT PrimitiveCount;
+    // pDeviceを取得する
+    __asm {
+        mov esi, [ebp + 0x08]
+        mov pDevice, esi;
+    }
+    // 各種引数を取得する
+    __asm {
+        mov esi, [ebp + 0x0C]
+        mov pType, esi
+        mov esi, [ebp + 0x10]
+        mov BaseVertexIndex, esi
+        mov esi, [ebp + 0x14]
+        mov MinIndex, esi
+        mov esi, [ebp + 0x18]
+        mov NumVertices, esi
+        mov esi, [ebp + 0x1C]
+        mov StartIndex, esi
+        mov esi, [ebp + 0x20]
+        mov PrimitiveCount, esi
+    }
+    // 用意した処理を呼び出す
+    my_DrawIndexedPrimitive(pDevice,
+                          pType,
+                          BaseVertexIndex,
+                          MinIndex,
+                          NumVertices,
+                          StartIndex,
+                          PrimitiveCount);
+    // 上書きした命令を実行してから元の場所に戻る
+    __asm {
+        mov esi, [ebp + 0x8]
+        test esi, esi
+        jmp DrawIndexedPrimitive_ret;
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;　ところで、このようにアセンブリを書けない方は、Microsoft Researchの提供するDetoursというライブラリを使用することをおすすめする。Detoursでは関数1つでフックが完了する。ただ、今回は具体的な構造を処理を理解するために手動でフックした。&lt;/p&gt;
+
+&lt;h2 id=&#34;オブジェクトを特定する&#34;&gt;オブジェクトを特定する&lt;/h2&gt;
+
+&lt;p&gt;　これでDIPをフックできるので、あとはpDeviceを使用して特定のオブジェクトのテクスチャを赤色に変更する処理を書けばよい。ここで問題なのが、DrawIndexedPrimitiveメソッドにはオブジェクトを特定できるようなIDなどは引数にないということである。そこで一般的に使用されるのが、引数のNumVertices、PrimitiveCountやpDeviceの持つGetStreamSourceメソッドである。
+NumVerticesは使用される頂点数である。頂点数はたいていオブジェクトによって異なるため、これを利用してオブジェクトを区別できる。また、GetStreamSourceにより取得できるStrideという変数もオブジェクトの区別によく使われる。そうなると次に必要なのは、あるオブジェクトのNumVerticesやStrideを取得することである。これには、一度my_DrawIndexedPrimitiveでOutputDebugStringなどを使ってログを取る方法などがある。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-asm&#34;&gt;TCHAR str[64] = TEXT(&amp;quot;&amp;quot;);
+wsprintf(str,
+         TEXT(&amp;quot;Stride=%d &amp;amp;&amp;amp; NumVertices=%d&amp;quot;),
+         Stride,
+         NumVertices);
+OutputDebugString(str);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;　DebugViewなどでこのログを見るだけでも、オブジェクト特定に繋がる。ちなみにFPSの人間など、部位が細かく分けられているオブジェクトでは複数のNumVerticesを指定しないと部分的にテクスチャを変更してしまう。今回のShadowMap.exeでぐるぐる回っている飛行機をログから特定したところ、Strideは32、NumVerticesは200代の値であった。（今回は飛行機の大部分を赤色に変更するが、細かい部分は元のテクスチャのままである。）&lt;/p&gt;
+
+&lt;h2 id=&#34;wallhackの仕上げ&#34;&gt;Wallhackの仕上げ&lt;/h2&gt;
+
+&lt;p&gt;　前節の結果より、my_DrawIndexedPrimitive関数にWallhackのメイン処理を書く。まず、NumVerticesからオブジェクトを特定したら、取得したpDeviceのSetTextureメソッドによりテクスチャを設定する。以下にテクスチャを作成する関数と、my_DrawIndexedPrimitive関数を示す。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;/*
+    テクスチャを生成する
+*/
+bool GenerateCham(IDirect3DDevice9 * pDevice,
+                  LPDIRECT3DTEXTURE9 *texture,
+                  DWORD colorARGB)
+{
+    if (FAILED(pDevice-&amp;gt;CreateTexture(8, 8, 1, 0,
+                                      D3DFMT_A4R4G4B4,
+                                      D3DPOOL_MANAGED,
+                                      texture,
+                                      NULL)))
+        return false;
+    WORD color16 = ((WORD)((colorARGB &amp;gt;&amp;gt; 28) &amp;amp; 0xF) &amp;lt;&amp;lt; 12)
+        | (WORD)(((colorARGB &amp;gt;&amp;gt; 20) &amp;amp; 0xF) &amp;lt;&amp;lt; 8)
+        | (WORD)(((colorARGB &amp;gt;&amp;gt; 12) &amp;amp; 0xF) &amp;lt;&amp;lt; 4)
+        | (WORD)(((colorARGB &amp;gt;&amp;gt; 4) &amp;amp; 0xF) &amp;lt;&amp;lt; 0);
+    D3DLOCKED_RECT d3dlr;
+    (*texture)-&amp;gt;LockRect(0, &amp;amp;d3dlr, 0, 0);
+    WORD *pDst16 = (WORD*)d3dlr.pBits;
+    for (int xy = 0; xy &amp;lt; 8 * 8; xy++) *pDst16++ = color16;
+    (*texture)-&amp;gt;UnlockRect(0);
+    return true;
+}
+
+VOID WINAPI my_DrawIndexedPrimitive(LPDIRECT3DDEVICE9 pDevice,
+                                    D3DPRIMITIVETYPE Type,
+                                    INT BaseVertexIndex,
+                                    UINT MinIndex,
+                                    UINT NumVertices,
+                                    UINT StartIndex,
+                                    UINT PrimitiveCount)
+{
+    LPDIRECT3DVERTEXBUFFER9 Stream_Data;
+    UINT Stride, offset;
+    LPDIRECT3DTEXTURE9 chameleon;
+
+    if (pDevice-&amp;gt;GetStreamSource(0,
+                                 &amp;amp;Stream_Data,
+                                 &amp;amp;offset,
+                                 &amp;amp;Stride) == D3D_OK) {
+        Stream_Data-&amp;gt;Release();
+    }
+
+    if ((Stride == 32 &amp;amp;&amp;amp; (
+        NumVertices == 245 ||
+        NumVertices == 232 ||
+        NumVertices == 256))) {
+        // テクスチャを設定する
+        GenerateCham(pDevice,
+                     &amp;amp;chameleon,
+                     D3DCOLOR_ARGB(255, 254, 0, 0));
+        pDevice-&amp;gt;SetTexture(0, chameleon);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;これら全てをまとめたプログラムは次のURLからダウンロードできる。&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/qr_code2.png&#34; /&gt;
+    
+    
+&lt;/figure&gt;
+
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;a href=&#34;https://github.com/ptr-yudai/jokenoffline/blob/master/wallhack02.cpp&#34;&gt;https://github.com/ptr-yudai/jokenoffline/blob/master/wallhack02.cpp&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;　早速実行してみよう。対象とするプログラムはDirect3Dのサンプルにある「ShadowMap.exe」である。DLLインジェクションにより作成したDLLをロードさせると、図に示したようにフックが成功していることが確認できる。&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/wallhack_test_2.png&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;DIPのフックによるテクスチャの変更&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;h1 id=&#34;不正対策&#34;&gt;不正対策&lt;/h1&gt;
+
+&lt;p&gt;特にオンラインゲームなど、一人の不正が不特定多数のプレイヤーに影響を与えてしまう場合、ゲームガードと呼ばれる不正対策機構が使用される。ゲームガードはインジェクションの検知以外にも、あらゆるチートに対する防御機構を備えている。しかし、実際にはゲームガードが実行されるマシンはチート利用者の手中にあるため、必ずチート利用者が有利になってしまう。そのため、現状ではいかにゲームガードの解析や回避を面倒にするかに重点をおいて研究されている。（パッカーや難読化など。）&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/cheat_detected.png&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;ゲームガードに不正行為が検知された例&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;p&gt;ゲームガードに検知されないコードはUD(Undetected)などと呼ばれてインターネットに出回っている。もちろんゲームガードの解析や回避は利用規約によって禁止されているので、決して試さないこと。&lt;/p&gt;
+
+&lt;h1 id=&#34;参考文献&#34;&gt;参考文献&lt;/h1&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Mid-Function Hook, that big deal? (2016/01/05)&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://www.unknowncheats.me/forum/c-and-c-/67884-mid-function-hook-deal.html&#34;&gt;https://www.unknowncheats.me/forum/c-and-c-/67884-mid-function-hook-deal.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Special Force D3D9 (Wallhack, XQZ, Crosshair) (2016/01/04)&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.unknowncheats.me/forum/other-fps-games/71550-special-force-d3d9-wallhack-xqz-crosshair.html&#34;&gt;http://www.unknowncheats.me/forum/other-fps-games/71550-special-force-d3d9-wallhack-xqz-crosshair.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Injectable Mid Function Hook (2016/01/06)&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.unknowncheats.me/forum/d3d-tutorials-and-source/68900-injectable-mid-function-hook.html&#34;&gt;http://www.unknowncheats.me/forum/d3d-tutorials-and-source/68900-injectable-mid-function-hook.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;IDirect3DDevice9 インターフェイス (2016/01/05)&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://msdn.microsoft.com/ja-jp/library/cc324252.aspx&#34;&gt;https://msdn.microsoft.com/ja-jp/library/cc324252.aspx&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;div class=&#34;footnotes&#34;&gt;
+
+&lt;hr /&gt;
+
+&lt;ol&gt;
+&lt;li id=&#34;fn:1&#34;&gt;うさみみハリケーン: &lt;a href=&#34;http://hp.vector.co.jp/authors/VA028184/#TOOL&#34;&gt;http://hp.vector.co.jp/authors/VA028184/#TOOL&lt;/a&gt;
+ &lt;a class=&#34;footnote-return&#34; href=&#34;#fnref:1&#34;&gt;&lt;sup&gt;[return]&lt;/sup&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

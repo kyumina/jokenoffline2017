@@ -1,0 +1,725 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Processing on JokenOffline(電子版)</title>
+    <link>https://kyumina.github.io/jokenoffline2017/tags/processing/index.xml</link>
+    <description>Recent content in Processing on JokenOffline(電子版)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>ja</language>
+    <atom:link href="https://kyumina.github.io/jokenoffline2017/tags/processing/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Processingを使ってみよう</title>
+      <link>https://kyumina.github.io/jokenoffline2017/archives/2017/04/07/intro_of_processing/</link>
+      <pubDate>Fri, 07 Apr 2017 10:54:02 +0900</pubDate>
+      
+      <guid>https://kyumina.github.io/jokenoffline2017/archives/2017/04/07/intro_of_processing/</guid>
+      <description>
+
+&lt;div style=&#34;text-align:right&#34;&gt;
+情報工学科 2年
+[毛利想一](https://sites.google.com/site/mokume1shin/home)
+&lt;/div&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;情報工学科の毛利想一（オンラインでは木目壱心として地味に活動してる）です。
+ちょっとだけゲームを作ったりしてます。&lt;/p&gt;
+
+&lt;p&gt;この記事では、私が愛用しているProcessingというプログラミング言語（及びそのエディタ）の基本的な使い方を説明したいと思います。&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&#34;processingの概要&#34;&gt;Processingの概要&lt;/h2&gt;
+
+&lt;p&gt;ダウンロードと起動にしばらく時間がかかるので、ここは後回しでもいいです。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;MIT&lt;/strong&gt; で作られた。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Processingは、マサチューセッツ工科大学（MIT）のメディアラボで作られたJavaベースのプログラミング言語です。
+ベースになったJava屋その他の言語 &lt;em&gt;(私はあんまり他にはやってないから何とも言えないが。)&lt;/em&gt; と比較しても、かなり簡単にプログラミングすることが可能になっています。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;奈良高専情報工学科の体験入学&lt;/strong&gt; でも使用。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;来た人もいるかもしれませんが、奈良高専情報工学科の体験入学でもProcessingを使用しました。もしそれをやったことがあるなら、下記の「動かす」ところまでは読み飛ばしてもいいと思います。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;情報工学科生&lt;/strong&gt; ならスペルを覚えておこう。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;本題とは全く無関係ですが、専門教科の情報工学概論の後記中間テストあたりで &lt;strong&gt;CPU(Central Processing Unit)&lt;/strong&gt; のスペルを書くという問題が出ます。&lt;strong&gt;CPU&lt;/strong&gt; の &lt;strong&gt;P&lt;/strong&gt; はProcessingなので、覚えておいて損はないかと。&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&#34;processingのダウンロード方法&#34;&gt;Processingのダウンロード方法&lt;/h2&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Processing公式ページ &lt;a href=&#34;http://processing.org&#34;&gt;http://processing.org&lt;/a&gt; にアクセス&lt;/li&gt;
+&lt;li&gt;ページ中央の、 &lt;strong&gt;Download Processing&lt;/strong&gt; をクリック&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;No Donation&lt;/strong&gt; を選択し、最新版をDL（ちなみにこれを書いているときの最新版は3.2.3）
+※別に寄付してもいいけど&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&#34;processingの起動&#34;&gt;Processingの起動&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;processing.exe&lt;/strong&gt; をクリック&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;※環境によってはしばらく時間かかるけど我慢。&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;こんなのが開くはず&lt;/p&gt;
+&lt;/blockquote&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/processing_start.png&#34; alt=&#34;processing_start.png&#34; /&gt;
+    
+    
+&lt;/figure&gt;
+
+
+&lt;hr /&gt;
+
+&lt;h2 id=&#34;初期設定をする&#34;&gt;初期設定をする&lt;/h2&gt;
+
+&lt;p&gt;あくまでも見やすくするためですが、Processingの表示が日本語になるようにします。&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;ウィンドウ上部にある &lt;strong&gt;File&lt;/strong&gt; タブの中の、 &lt;strong&gt;Preferences&lt;/strong&gt; をクリックする。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Languages&lt;/strong&gt; が &lt;strong&gt;English&lt;/strong&gt; になっているのを &lt;strong&gt;日本語&lt;/strong&gt; に変える。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Editor and Console font&lt;/strong&gt; を &lt;strong&gt;MSゴシック&lt;/strong&gt; などの日本語フォントに変える。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Editor font size&lt;/strong&gt; や &lt;strong&gt;Console font size&lt;/strong&gt; は、適宜見やすいように変更する。&lt;/li&gt;
+&lt;li&gt;Processing を再起動。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&#34;プログラミングを始める&#34;&gt;プログラミングを始める&lt;/h2&gt;
+
+&lt;p&gt;では、本題のプログラミングをやり始めよう。&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;とりあえず動かす。&lt;/p&gt;
+
+&lt;p&gt;Processingは、まったく何も書かなくても実行できます。（ここ、すごいところ）&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;まったく何も書かない（エディタが真っ白な）状態で左上の再生ボタン(右向きの三角形)を押してみましょう。&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;灰色の画面が開くはずです。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/blockquote&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/processing_null.png&#34; alt=&#34;processing_null&#34; /&gt;
+    
+    
+&lt;/figure&gt;
+&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;キーボードの確認&amp;amp;覚えておいてほしいこと。&lt;/p&gt;
+
+&lt;p&gt;いよいよプログラムのコードを書くことになります。
+その際に必要になってくるキーを確認しましょう。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;セミコロン &lt;strong&gt;；&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;キーボードのLの右隣にあります。
+ このキーが存在しない場合や、キーボードのこのキーが死んでしまった場合は、この世界の終わりのようなことになります。
+ Java,C言語などで共通して1文の終了を意味します。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;ダブルクォート &lt;strong&gt;&amp;ldquo;&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;文字列データ( &lt;em&gt;String&lt;/em&gt; )を囲むときに使います。
+ &lt;em&gt;Shiftキー&lt;/em&gt; を押しながら2キーを押すことで出せます。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;シングルクォート &lt;strong&gt;&amp;lsquo;&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;1文字データ( &lt;em&gt;char&lt;/em&gt; )を囲むときに使います。
+ &lt;em&gt;Shiftキー&lt;/em&gt; を押しながら7キーを押すことで出せます。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;コメント文について &lt;strong&gt;//&lt;/strong&gt; or. &lt;strong&gt;/* */&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;これからサンプルコードとして書かれていく枠の中に、//や/*などが出現しますが、それらはプログラムとしては実行されなくなります。
+ これを見て写す場合は、書く必要性はありません。&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;画面サイズを調節する。&lt;/p&gt;
+
+&lt;p&gt;先ほどの画面サイズでは、あまりにも小さすぎるので、大きさを調節しましょう。&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;画面サイズを調節するには、size &lt;strong&gt;関数&lt;/strong&gt; を使います。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;書き方は、size(横の長さ,縦の長さ);のようにします。&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;とりあえずそのまま写してみましょう。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sample_size.pde&#34;&gt;size(500,300);
+&lt;/code&gt;&lt;/pre&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/processing_size.png&#34; alt=&#34;processing_size.png&#34; /&gt;
+    
+    
+&lt;/figure&gt;
+&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;次に適当に値を変化させてみましょう。&lt;/p&gt;
+
+&lt;p&gt;※0とか10000の値を入れた場合は実行できないので注意。&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;ところで、唐突に &lt;strong&gt;関数&lt;/strong&gt; という言葉が出てきました。
+関数というのは、カッコの中に値（数値とか文字列とか）を入れることで、関数の内容に対応した結果が得られるもののことです。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/blockquote&gt;&lt;/li&gt;
+&lt;/ol&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;図形を書く&lt;/p&gt;
+
+&lt;p&gt;では、いよいよProcessingで図形を描いてみましょう。&lt;/p&gt;
+
+&lt;p&gt;ですが、あんまりたくさん紹介しても仕方がないので、よく使うものに絞って説明します。&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;座標について&lt;/p&gt;
+
+&lt;p&gt;ですがまず、プログラムで図形を描く注意点として、座標（図形の位置の設定）について説明しておきます。&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/processing_matrix.png&#34; alt=&#34;processing_matrix&#34; width=&#34;400&#34; /&gt;
+    
+    
+&lt;/figure&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;上図(左)のように、数学(Mathmatics)
+では、グラフのX,Yが正の領域は左下を原点として右上に広がっていきます。&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;それに対して、上図(右)のProcessingを含むすべてのプログラムでは、左上を原点として右下に向かって領域が広がっていきます。&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;point&lt;/p&gt;
+
+&lt;p&gt;point関数は、点を描きます。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sample_point.pde&#34;&gt;  size(480,120);
+  point(240,60);
+  //point(X座標,Y座標);
+&lt;/code&gt;&lt;/pre&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/processing_point.png&#34; alt=&#34;processing_point.png&#34; /&gt;
+    
+    
+&lt;/figure&gt;
+
+
+&lt;blockquote&gt;
+&lt;p&gt;真ん中に点が出てくるはず。&lt;/p&gt;
+&lt;/blockquote&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;line&lt;/p&gt;
+
+&lt;p&gt;line関数は、線を描きます。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sample_line.pde&#34;&gt;  size(480,120);
+  line(20,20,460,100);
+  //line(始点X座標,始点Y座標,終点X座標,終点Y座標);
+&lt;/code&gt;&lt;/pre&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/processing_line.png&#34; alt=&#34;processing_line&#34; /&gt;
+    
+    
+&lt;/figure&gt;
+&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;rect&lt;/p&gt;
+
+&lt;p&gt;rect関数は、長方形を描きます。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sample_rect.pde&#34;&gt;  size(480,120);
+  rect(20,20,440,80);
+  //rect(左上のX座標,左上のY座標,横の長さ,縦の長さ);
+&lt;/code&gt;&lt;/pre&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/processing_rect.png&#34; alt=&#34;processing_line&#34; /&gt;
+    
+    
+&lt;/figure&gt;
+&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;ellipse&lt;/p&gt;
+
+&lt;p&gt;ellipse関数は、楕円を描きます。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sample_ellipse.pde&#34;&gt;  size(480,120);
+  ellipse(240,60,100,100);
+  //ellipse(中心のX座標,中心のY座標,X軸方向の直径,Y軸方向の直径);
+&lt;/code&gt;&lt;/pre&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/processing_ellipse.png&#34; alt=&#34;processing_ellipse&#34; /&gt;
+    
+    
+&lt;/figure&gt;
+
+
+&lt;blockquote&gt;
+&lt;p&gt;綴りがややこしいですが、円を描くことがよくあるので覚えておくとよいです。&lt;/p&gt;
+&lt;/blockquote&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;vertex&lt;/p&gt;
+
+&lt;p&gt;vertex関数は、多角形を描くことができます。&lt;/p&gt;
+
+&lt;p&gt;beginShape()からendShape()までが1つの図形です。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sample_vertex.pde&#34;&gt;  size(480,120);
+  beginShape(); //図形を描き始める
+  vertex(240,20); //頂点一つ一つの座標
+  vertex(120,100);
+  vertex(360,100);
+  endShape(CLOSE);  //図形を描き終わる
+&lt;/code&gt;&lt;/pre&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/processing_vertex.png&#34; alt=&#34;vertex&#34; /&gt;
+    
+    
+&lt;/figure&gt;
+
+
+&lt;blockquote&gt;
+&lt;p&gt;endShape()の中の &lt;strong&gt;CLOSE&lt;/strong&gt; というのは、図形の周りを囲んでいる線の最初と最後をつなぐという意味です。
+  試しに消してみるとよく分かります。&lt;/p&gt;
+&lt;/blockquote&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;text&lt;/p&gt;
+
+&lt;p&gt;text関数は文章を書くことができます。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-processing_text.pde&#34;&gt;  size(480,120);
+  textSize(50); //文字の大きさを指定
+  text(&amp;quot;Hello Joken World!&amp;quot;,20,80); //文字列を描画
+  //text(表示する内容,表示座標X,表示座標Y);
+  //表示座標は文字列の左下が基準
+&lt;/code&gt;&lt;/pre&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/processing_text.png&#34; alt=&#34;Hello_Joken_World!&#34; /&gt;
+    
+    
+&lt;/figure&gt;
+&lt;/li&gt;
+&lt;/ol&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;色を付ける。&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;色について&lt;/p&gt;
+
+&lt;p&gt;Processingで色を使う時は、光の三原色(RGB)と透明度(Alpha)で表されます。&lt;/p&gt;
+
+&lt;p&gt;入力する値は &lt;strong&gt;0~255&lt;/strong&gt; の間で、値の入力の仕方はいろいろあります。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sample_color.pde&#34;&gt;  fill(255);          //グレースケール（白～黒の間）で色指定。現在は白。
+  fill(0,100);        //グレースケール＋透明度で色指定。現在は半透明な黒。
+  fill(255,0,255);    //RGBで色指定。現在は紫（結構どぎつい）。
+  fill(0,255,0,100);  //RGB+透明度で色指定。現在は半透明の緑。
+&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;background&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-processing_background.pde&#34;&gt;  size(480,120);
+  background(200,255,200);
+  //背景色。ちなみに今までの背景色はbackground(204);
+&lt;/code&gt;&lt;/pre&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/processing_background.png&#34; /&gt;
+    
+    
+&lt;/figure&gt;
+
+
+&lt;blockquote&gt;
+&lt;p&gt;薄い青が表示されているはずです。
+  薄すぎて見えないかも。&lt;/p&gt;
+&lt;/blockquote&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;fill / noFill&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-processing_fill.pde&#34;&gt;  size(480,120);
+  fill(100,255,100);
+  //図形の塗色の設定。指定した後、再指定するまでのすべての図形に適用。
+  ellipse(120,60,100,100);  //左の円
+  rect(240,10,100,100);     //真ん中の四角
+  fill(255,100,100);
+  rect(360,50,50,50);       //右の四角
+  noFill();                 //図形の塗色を無しに。
+  ellipse(400,0,50,50);     //上の円(透明)
+&lt;/code&gt;&lt;/pre&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/processing_fill.png&#34; alt=&#34;procossing_fill&#34; /&gt;
+    
+    
+&lt;/figure&gt;
+&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;stroke / noStroke&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-processing_stroke.pde&#34;&gt;  size(480,120);
+  //図形の縁の色の指定。指定した後、再指定するまですべての図形に適用。
+  stroke(255,100,255);
+  line(50,10,50,110);   //左の線
+  ellipse(240,60,100,100);  //真ん中の円
+  noStroke(); //図形の縁を無くす。
+  rect(300,10,100,100);   //右の四角
+&lt;/code&gt;&lt;/pre&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/processing_stroke.png&#34; alt=&#34;processing_stroke&#34; /&gt;
+    
+    
+&lt;/figure&gt;
+&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;strokeWeight&lt;/p&gt;
+
+&lt;p&gt;線の太さを指定します。
+  通常は1です。&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h4 id=&#34;問題&#34;&gt;問題&lt;/h4&gt;
+
+&lt;p&gt;下のような図形を描いてください。&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/image_test.png&#34; alt=&#34;processing_image_test&#34; /&gt;
+    
+    
+&lt;/figure&gt;
+&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;変数&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;変数というのは、数学でいうところのXとかYみたいなものです。
+いろいろな値を入れて保存し、どこかで呼び出すのに使います。&lt;/li&gt;
+&lt;li&gt;次にあげる4つは、変数の名前を決める時に、その変数がどのような値を入れるのかをコンピュータに分かるようにするためのものです。&lt;/li&gt;
+&lt;li&gt;すべてのプログラムで必須なので、これを習得することは必須です。
+とは言いつつも、内容自体はかなりシンプルなので、あまり複雑にならないように書いておきます。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;ol&gt;
+&lt;li&gt;int
+整数値を扱う時に使用します。&lt;/li&gt;
+&lt;li&gt;float
+小数値を扱う時に使用します。
+一番これをよく使う気がする。&lt;/li&gt;
+&lt;li&gt;String
+文字列を扱う時に使用します。&lt;/li&gt;
+&lt;li&gt;char
+半角一文字を扱う時に使用します。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-processing_variables.pde&#34;&gt;  int r;  //変数の宣言(名前を付ける)　整数値
+  r=70;   //変数に値を代入
+  ellipse(50,50,r,r);
+&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;四則演算&lt;/p&gt;
+
+&lt;p&gt;四則演算とは、加減乗除の計算のことで、+(加),-(減),*(乗),/(除)などの記号を用いるのが一般的です。
+Processingも同じなので、これからプログラミングの勉強をするという時に少しは役に立ちます。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-processing_calc.pde&#34;&gt;int x=10;
+//下の黒い部分に数字が表示される。
+println(x);   //10
+println(x+2); //10 + 2 = 12
+println(x-3); //10 - 3 = 7
+println(x*3); //x × 3 = 30
+println(x/2); //x ÷ 2 ＝ 5
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;計算して値を代入する&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-processing_calc2.pde&#34;&gt;int x=10;
+x=x+2;  //xにx+2を「代入」(「等しい」ではありません)
+println(x); //12
+x=x*3;  //xにx*3を代入
+println(x); //36
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;x=2&lt;/strong&gt; は &lt;strong&gt;x+=2&lt;/strong&gt; と書いても同じ意味です。
+同様に、&lt;strong&gt;x=x*3&lt;/strong&gt; は &lt;strong&gt;x * =3&lt;/strong&gt; と書いても同じ意味です。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&#34;問題-1&#34;&gt;問題&lt;/h3&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;xに3を代入して、xに5を足して9倍、7を引いた値を出してください。&lt;/p&gt;
+&lt;/blockquote&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;動かす&lt;/p&gt;
+
+&lt;p&gt;いよいよProcessingでアニメーションを作ります。&lt;/p&gt;
+
+&lt;p&gt;ここで扱うアニメーションは、1秒間に60回ほど図形を描き直すことによって成り立っています。
+その1回の上書きをフレームと呼びます。&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;アニメーション
+
+&lt;ol&gt;
+&lt;li&gt;setup関数
+起動時に1回だけ実行される部分です。&lt;/li&gt;
+&lt;li&gt;draw関数
+1秒間に60回ほど実行される部分です。&lt;/li&gt;
+&lt;/ol&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-processing_animation.pde&#34;&gt;  int x=50;
+  void setup(){
+         size(480,120);
+         background(255);
+  }
+  void draw(){
+         x+=5;
+         ellipse(x,60,100,100);
+  }
+&lt;/code&gt;&lt;/pre&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/processing_animation.png&#34; alt=&#34;processing_animation&#34; /&gt;
+    
+    
+&lt;/figure&gt;
+
+
+&lt;blockquote&gt;
+&lt;p&gt;円が右へ動けば正解です。&lt;/p&gt;
+
+&lt;p&gt;残像を残したくない場合は &lt;strong&gt;x+=10;&lt;/strong&gt; の前に &lt;strong&gt;background(255);&lt;/strong&gt; を書き足してください。&lt;/p&gt;
+&lt;/blockquote&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;操作&lt;/p&gt;
+
+&lt;p&gt;こんなふうにプログラムを書き足して、何かが動く様子を眺めるのもいいのですが、それではゲームになりません。&lt;/p&gt;
+
+&lt;p&gt;マウスで操作できるようにしてみましょう。&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;mouseX
+マウスの画面内のX座標。&lt;/li&gt;
+&lt;li&gt;mouseY
+マウスの画面内のY座標。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-processing_mouse.pde&#34;&gt;  void setup(){
+       size(480,480);
+  }
+  void draw(){
+       ellipse(mouseX,mouseY,100,100);
+  }
+&lt;/code&gt;&lt;/pre&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/processing_mouse.png&#34; alt=&#34;processing_mouse&#34; /&gt;
+    
+    
+&lt;/figure&gt;
+
+
+&lt;blockquote&gt;
+&lt;p&gt;さあ、マウスで絵が描けるようになりました。&lt;/p&gt;
+&lt;/blockquote&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;条件分岐&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;条件分岐は、変数がどのような状態にあるかによって、その次に実行されるプログラムを切り替えるために使われます。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-processing_if.pde&#34;&gt;  void setup(){
+       size(480,480);
+  }
+  void draw(){
+       background(204);
+       if(dist(width/2,height/2,mouseX,mouseY)&amp;lt;50){
+         fill(0);
+       }else{
+         fill(255);
+       }
+       ellipse(width/2,height/2,100,100);
+  }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;マウスが円の上にないとき
+  
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/processing_if1.png&#34; alt=&#34;processing_if1&#34; /&gt;
+    
+    
+&lt;/figure&gt;
+&lt;/p&gt;
+
+&lt;p&gt;マウスが円の上にあるとき
+  
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://kyumina.github.io/jokenoffline2017/images/processing_if2.png&#34; alt=&#34;processing_if2&#34; /&gt;
+    
+    
+&lt;/figure&gt;
+&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;なんかいろいろとややこしいですが、1つ1つ説明していきましょう。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;width&lt;/strong&gt; は画面の横の長さ、&lt;strong&gt;height&lt;/strong&gt; は画面の縦の長さです。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;つまり、円の中心座標が &lt;strong&gt;(width/2,height/2)&lt;/strong&gt; となっているので、画面の真ん中に円を表示するという事になります。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;size()関数の中の値を変えても、画面の真ん中に表示されます。&lt;/em&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;dist関数は二点間の距離を測ります。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;つまり、 &lt;strong&gt;画面中央(円の中心座標)&lt;/strong&gt; から、あなたのマウスの座標までの距離を測っています。&lt;/p&gt;
+
+&lt;p&gt;その距離が円の半径よりも小さい &lt;strong&gt;(&amp;lt;50)&lt;/strong&gt; 場合は円の色を黒くするという事になっています。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;if文は、 &lt;strong&gt;if(条件){}&lt;/strong&gt; と書き、条件が成り立つとき、中カッコの中 &lt;strong&gt;{}&lt;/strong&gt; の文章が実行されます。&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;そのあとの &lt;strong&gt;else&lt;/strong&gt; という部分は、if分の条件が成り立たなかったときに実行されます。
+つまり、円を白くしています。&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;if文の判定に使われる記号&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-processing_if_example.pde&#34;&gt;  a==b  aとbが等しいとき
+  &amp;gt;     bよりaが大きいとき
+  &amp;lt;     bよりaが小さいとき
+  &amp;gt;=    aがb以上
+  &amp;lt;=    aがb以下
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;いくつかの判定を重ねるときに使う記号&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-processing_if_example2.pde&#34;&gt;  if(a==b || a==c){
+      //aがbと等しく、または、aがcと等しいときに実行される。
+  }
+  if(a==b &amp;amp;&amp;amp; a==c){
+      //aがbと等しく、かつ、aがcと等しいときに実行される。
+  }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;マウスが押されているかどうか判定するときは、&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;pre&gt;&lt;code&gt;  if(mousePressed){
+      //なんたらかんたら
+  }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;と書く。&lt;/p&gt;
+
+&lt;p&gt;### 問題&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;マウスが円の中に入っていることを判定するプログラムを、 &lt;strong&gt;円の中でクリック&lt;/strong&gt; している事を判定するプログラムに変えてください。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;(HINT)&lt;/em&gt; &amp;amp;&amp;amp;とmousePressedを使う。&lt;/p&gt;
+&lt;/blockquote&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&#34;最後に&#34;&gt;最後に&lt;/h2&gt;
+
+&lt;p&gt;ここに書いたのは、あくまでも基本的なことで、これだけで何か作れるかどうかはまた別の話です。
+まだ、for文、関数、配列、classなどをやらないといけないのですが、説明が難しい&amp;amp;めんどくさいので、そこは自学自習をお勧めします。
+というかこんな文章を読まなくても、「Processingをはじめよう」という良書がありますので、それを読めば大体のことができるようになります。&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&#34;おまけ&#34;&gt;おまけ&lt;/h2&gt;
+
+&lt;p&gt;この分かりにくい文章を書いた私は、Processingを使ってちょっとしたゲームを作っています。
+ちょっとでも習得の助けになればいいと思っています。&lt;/p&gt;
+
+&lt;p&gt;P.B.B.  &lt;a href=&#34;http://www.freem.ne.jp/win/game/12019&#34;&gt;http://www.freem.ne.jp/win/game/12019&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;P.C.C.  &lt;a href=&#34;http://www.freem.ne.jp/win/game/12857&#34;&gt;http://www.freem.ne.jp/win/game/12857&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

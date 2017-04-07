@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>弾幕風 on JokenOffline(電子版)</title>
+    <link>https://kyumina.github.io/jokenoffline2017/tags/%E5%BC%BE%E5%B9%95%E9%A2%A8/index.xml</link>
+    <description>Recent content in 弾幕風 on JokenOffline(電子版)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>ja</language>
+    <atom:link href="https://kyumina.github.io/jokenoffline2017/tags/%E5%BC%BE%E5%B9%95%E9%A2%A8/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>東方弾幕風で弾幕STGを作った話</title>
+      <link>https://kyumina.github.io/jokenoffline2017/archives/2017/04/07/make_danmaku/</link>
+      <pubDate>Fri, 07 Apr 2017 10:43:02 +0900</pubDate>
+      
+      <guid>https://kyumina.github.io/jokenoffline2017/archives/2017/04/07/make_danmaku/</guid>
+      <description>
+
+&lt;p&gt;制作期間：2ヵ月&lt;/p&gt;
+
+&lt;p&gt;使用ソフト：東方弾幕風&lt;/p&gt;
+
+&lt;p&gt;東方弾幕風ダウンロード元：
+&lt;a href=&#34;http://www.geocities.co.jp/SiliconValley-Oakland/9951/products/th_dnh.html&#34;&gt;http://www.geocities.co.jp/SiliconValley-Oakland/9951/products/th_dnh.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;※Windows10では動かないこともあるので動かなかったときは東方弾幕風を右クリックし、
+プロパティ＞互換性に移動し互換モードの互換モードでこのプログラムを実行するにチェックを入れ、
+下の欄でWindowsXPを選択し適用し実行してください。
+それでも動かなかった場合、管理者として実行を選択し実行してください。&lt;/p&gt;
+
+&lt;h2 id=&#34;解説&#34;&gt;解説&lt;/h2&gt;
+
+&lt;p&gt;ここでは、東方弾幕風についてスクリプトの基本的な書き方について説明していきます。
+東方弾幕風の基本操作につては東方弾幕風ダウンロード元のヘルプ関連サイトを参照してください。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;# 東方弾幕風
+# Title[弾幕の名前]
+# Text[弾幕の説明]
+# ScriptVersion[2]
+
+script_enemy_main {
+敵の動き
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;東方弾幕風では東方弾幕風のスクリプトを認識するためにスクリプトの一行目に「#東方弾幕風」と書きます。
+書かなかった場合は、スクリプトとして認識しないようになるので注意してください。
+２行目、３行目は書かなくても問題はありません。
+４行目の「# ScriptVersion[2]」はスクリプトのバージョンを表しています。
+そして、６行目の「script_enemy_main{ }」の{ }の中に敵の動作に関するスクリプトを書いていきます。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;#東方弾幕風
+#Title[弾幕の名前]
+#Text[弾幕の説明]
+#ScriptVersion[2]
+
+script_enemy_main{
+  let imgBoss = &#39;画像パス&#39;;
+  let flame = 0;
+  let angleBase = 90;
+
+  @Initialize{
+    SetX(GetCenterX); //敵の表示位置の設定(中心のX座標)
+    SetY(GetClipMinY + 120); //敵の表示位置の設定(上端のY座標から120進んだところ)
+    SetLife(2000); //敵の体力の設定(2000)
+
+    LoadGraphic(imgBoss); //敵の画像の読み込み(画像パス)
+    SetTexture(imgBoss); //敵の画像の描画(画像パス)
+    SetGraphicRect(0, 0, 63, 63); //画像の描画範囲
+  }
+
+  @MainLoop{
+    SetCollisionA(GetX, GetY, 24); //自弾と当たった時の敵の当たり判定(敵のX座標, 敵のY座標, 半径)
+    SetCollisionB(GetX, GetY, 24); //自機と当たったときの敵の当たり判定(敵のX座標, 敵のY座標, 半径)
+
+    frame++; //フレーム毎にframeに1を足す
+    if(frame % 30 == 0) { //frameが30で割り切れる時だけ実行される
+      let angle = angleBase - 10; //angleの宣言
+      loop(3) { //3回繰り返す
+        CreateShot01(GetX, GetY, 1, angle, YELLOW01, 0); //弾を生成する(弾を発射する座(X座標), 標弾を発射する座標(Y座標), 速度, 角度, 画像, 弾が実態するまでの時間)
+        angle += 10; //angleに10を足す
+      }
+      angleBase += 8; //angleBaseに8を足す
+    }
+  }
+
+  @DrawLoop{
+    DrawGraphic(GetX, GetY); //設定した情報で描画を行う(敵のX座標, 敵のY座標)
+  }
+
+  @Finalize{
+    DeleteGraphic(imgBoss); //指定した画像の描画を止める
+  }
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;最初の7行目ではC言語のように変数を宣言しています。
+変数の中は敵を描画するための画像のパスを入力してあります。
+変数を宣言することにより入力ミスを防ぐことができ、画像のパスのような面倒な入力を何度もしなくてもよくなります。&lt;/p&gt;
+
+&lt;p&gt;9行目では時間的な要素を追加するためにframeという変数を作り0を代入しています。&lt;/p&gt;
+
+&lt;p&gt;10行目では角度の基準を作るためにangleBaseという変数を作り90を代入しています。&lt;/p&gt;
+
+&lt;p&gt;「@Initialize{ }」の{ }の中には敵が出現したとき一度だけ実行されるスクリプトを書きます。&lt;/p&gt;
+
+&lt;p&gt;この中の最初の３行で敵の画像の描画位置と敵の体力を設定しています。&lt;/p&gt;
+
+&lt;p&gt;あとの３行で画像をパスから読み込み表示範囲を設定し表示の開始をしています。&lt;/p&gt;
+
+&lt;p&gt;「@MainLoop{ }」の{ }の中には敵のライフが0になるまで繰り返すスクリプトを書きます。
+※１フレームごとに繰り返されます。
+この中の最初の２行で敵の当たり判定を設定しています。&lt;/p&gt;
+
+&lt;p&gt;「frame++」はそのプログラムが実行されるたびにframeに+1されることを表しています。
+つまり、フレーム毎にframeに+1されていきます。&lt;/p&gt;
+
+&lt;p&gt;ifの中はframeが30で割り切れるときだけ実行されるようになっています。&lt;/p&gt;
+
+&lt;p&gt;ここで、angleを宣言し弾の発射角を決定します。&lt;/p&gt;
+
+&lt;p&gt;次に弾を( )の中の通りに生成しangleに10をangleBaseに8を足します。&lt;/p&gt;
+
+&lt;p&gt;「@DrawLoop{ }」の{ }の中は描画ループについてを書きます。
+※１フレームごとに繰り返されます。
+この中では敵を描画し続けるように設定しています。&lt;/p&gt;
+
+&lt;p&gt;「@Finalize{ }」の{ }の中には敵のライフが0になったときに一回だけ実行されるスクリプトを書きます。
+ここでは、体力が0になったとき敵を消すよう設定しています。&lt;/p&gt;
+
+&lt;p&gt;そして、これを実行すると敵が描画され3wayの弾を回転しながら30フレームづつ発射していきます。&lt;/p&gt;
+
+&lt;h2 id=&#34;反省点&#34;&gt;反省点&lt;/h2&gt;
+
+&lt;p&gt;・技の種類が少なかった&lt;/p&gt;
+
+&lt;p&gt;・ソースコードの管理が全くできていなかった&lt;/p&gt;
+
+&lt;p&gt;・人材管理が行き届いていなかった&lt;/p&gt;
+
+&lt;h2 id=&#34;jokenに入って&#34;&gt;Jokenに入って&lt;/h2&gt;
+
+&lt;p&gt;Jokenに入って楽しと感じたところは先輩との上下関係が厳しくないので話しやすく、
+自分の作りたいものや面白そうなものを先輩と相談しながら作れるところです。　　&lt;/p&gt;
+
+&lt;p&gt;特に、U-22や高専プロコンの事などについて考えて作るのは楽しいです。
+部活としてはかなり緩くやっているので初めて入った人も比較的早くなじめるかと思います。
+何か作りたいと考えている人はぜひjokenの部室にお立ち寄りください。&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

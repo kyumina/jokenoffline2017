@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Java on JokenOffline(電子版)</title>
+    <link>https://kyumina.github.io/jokenoffline2017/tags/java/index.xml</link>
+    <description>Recent content in Java on JokenOffline(電子版)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>ja</language>
+    <atom:link href="https://kyumina.github.io/jokenoffline2017/tags/java/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>マインスイーパーを作ろう</title>
+      <link>https://kyumina.github.io/jokenoffline2017/archives/2017/04/07/mine_sweeper/</link>
+      <pubDate>Fri, 07 Apr 2017 15:46:08 +0900</pubDate>
+      
+      <guid>https://kyumina.github.io/jokenoffline2017/archives/2017/04/07/mine_sweeper/</guid>
+      <description>
+
+&lt;h3 id=&#34;はじめに&#34;&gt;はじめに&lt;/h3&gt;
+
+&lt;p&gt;　プログラミングを始めて1年程度のものですがよろしくお願いいたします。&lt;/p&gt;
+
+&lt;p&gt;　これは、マインスイーパを題材にして簡単なゲームをどのように作っていけばいいかの例を示すことができたらいいなと思って書きました。
+基本的にjavaで説明していきますが開発環境の準備などについては省略させていただきます。ご了承ください。また、非効率なソースなど見苦しい点もあるかもしれませんがお許しください。&lt;/p&gt;
+
+&lt;h3 id=&#34;マインスイーパとは&#34;&gt;マインスイーパとは&lt;/h3&gt;
+
+&lt;p&gt;　まず皆さん、マインスイーパを知っていますか？windows7などに入っていたりしたので遊んだことがある人も多いと思います。
+マインスイーパは、たくさんのマスからできた盤面上にいくつかの爆弾が隠されており、爆弾のないマスには周囲にいくつの爆弾が存在するかの値が書かれています。これらのマスは最初は何も書かれていないですが、開けていくことで値がわかるようになり、これらの値をもとにして爆弾のないマスすべてを開くことができたらクリアとなる簡単なゲームです。ここでは、知っているという前提で話させていただきます。&lt;/p&gt;
+
+&lt;h3 id=&#34;コンソール版-java&#34;&gt;コンソール版(java)&lt;/h3&gt;
+
+&lt;p&gt;　まず最初に、コンソールで遊ぶことができるマインスイーパを作っていこうと思います。この時、簡単化された形からまずは考えていきたいと思います。そして、今回は簡単な形として4×4のサイズで爆弾の位置が最初から固定されているものを使います。それを以下に載せます。この時、爆弾を9という値で表し、そのほかの数を周りの爆弾の数を表すようにします。なぜ、爆弾を9という値で表すのかというと、プログラムを書いたことがあればわかると思いますが今回は整数型の二次元配列でフィールドを作るのですが、その時、周りにある爆弾の数は、理論上最大で8個まで可能性があるのでそれより大きい数もしくは、負の数を爆弾として対応させることによって爆弾を表すことができるので、今回は8より1大きい数である9を使いました。&lt;/p&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th align=&#34;center&#34;&gt;&lt;/th&gt;
+&lt;th align=&#34;center&#34;&gt;0&lt;/th&gt;
+&lt;th align=&#34;center&#34;&gt;1&lt;/th&gt;
+&lt;th align=&#34;center&#34;&gt;2&lt;/th&gt;
+&lt;th align=&#34;center&#34;&gt;3&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;0&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;1&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;1&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;1&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;9&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;1&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;1&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;9&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;3&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;2&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;2&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;2&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;3&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;9&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;1&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;3&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;9&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;2&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;1&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;1&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;このフィールドをbyte型の二次元配列として宣言しておきます。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-java&#34;&gt;byte[][] field = {
+                {1,1,1,9},
+                {1,9,3,2},
+                {2,3,9,1},
+                {9,2,1,1}
+        };
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;　次に、マインスイーパを動作させるのに必要なものを考えていきたいと思います。まず、マインスイーパはマスを開けていくためどのマスが開けられたマスかどうかを記憶しておかなければなりません。(旗はまず考えないでおきます。)そのために、boolean型のフィールドと同じサイズの二次元配列を用意して、開いていたら&lt;strong&gt;true&lt;/strong&gt;、閉じていたら&lt;strong&gt;false&lt;/strong&gt;となるようにします。これで、フィールドの準備はOKです。&lt;/p&gt;
+
+&lt;p&gt;　ほかに必要なものは、入力などを処理する部分です。これらを以下にまとめました。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;入力
+
+&lt;ul&gt;
+&lt;li&gt;座標で入力される&lt;/li&gt;
+&lt;li&gt;指定されたマスの状態を確認&lt;/li&gt;
+&lt;li&gt;状態の変更&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;出力
+
+&lt;ul&gt;
+&lt;li&gt;配列の表示&lt;/li&gt;
+&lt;li&gt;現在の状態&lt;/li&gt;
+&lt;li&gt;答え&lt;/li&gt;
+&lt;li&gt;クリア、ゲームオーバーの表示&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;判定
+
+&lt;ul&gt;
+&lt;li&gt;爆弾のないマスすべてが開いたかを調べる。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;これらを実装することで、マインスイーパはつくることができます。&lt;/p&gt;
+
+&lt;p&gt;そのほかにこれらの処理は、クリアもしくはゲームオーバーまで何度も繰り返されるのでループ処理内に記述します。&lt;/p&gt;
+
+&lt;p&gt;では、それぞれの部分を見ていきましょう。&lt;/p&gt;
+
+&lt;h6 id=&#34;入力&#34;&gt;入力&lt;/h6&gt;
+
+&lt;p&gt;　入力では、Scannnerクラスを用いて、入力を座標で入力するようにします。そして、入力された座標のマスが閉じているならば開けて閉じているならば再入力を促します。また、開けるときマスに爆弾があるならばGAMEOVERにします。そして、ループを終了します。&lt;/p&gt;
+
+&lt;p&gt;　この時、座標は m,n としました。これは、x,y としてもかまいません。変えるならば以降変えて見ていってください。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-java&#34;&gt;//Scannerクラスのインスタンスの宣言
+Scanner stdIn = new Scanner(System.in);
+
+//座標入力
+System.out.print(&amp;quot;m:&amp;quot;);
+int m = stdIn.nextInt();
+System.out.print(&amp;quot;n:&amp;quot;);
+int n = stdIn.nextInt();
+
+//フィールドの確認
+if(field[m][n] == 9){
+  System.out.println(&amp;quot;ゲームオーバーです&amp;quot;);
+}else{
+  if(openfield[m][n]){
+    System.out.println(&amp;quot;すでに開いています&amp;quot;);
+    k--;
+    continue;
+  }else{
+    openfield[m][n] = true;
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h6 id=&#34;出力&#34;&gt;出力&lt;/h6&gt;
+
+&lt;p&gt;　次に出力です。出力ではまず、配列の表示をしなければなりません。そのために二重forループを使います。そして、現在の状態の表示ではマスが開いていないなら「&lt;strong&gt;-&lt;/strong&gt;」を表示し、開いているならばそのマスが保持している数字を表示するようにします。また、答えの表示では現在の状態に関係なくすべてのマスを表示しますが、爆弾のマスは「&lt;strong&gt;*&lt;/strong&gt;」を表示するようにします。これらを実装したものを以下に載せます。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-java&#34;&gt;//フィールドの表示
+System.out.println(&amp;quot;＜＜＜開いているところ＞＞＞&amp;quot;);
+for(int i = 0; i &amp;lt; field.length; i++){
+  for(int j = 0; j &amp;lt; field[i].length; j++){
+    if(openfield[i][j]){
+      System.out.print(field[i][j]);
+    }else{
+      System.out.print(&amp;quot;-&amp;quot;);
+    }
+  }
+  System.out.println();
+}
+
+//終了時処理
+System.out.println(&amp;quot;【答え】&amp;quot;);
+for(int i = 0; i &amp;lt; field.length; i++){
+  for(int j = 0; j &amp;lt; field[i].length; j++){
+    if(field[i][j] == 9){
+      System.out.print(&amp;quot;*&amp;quot;);
+    }else{
+      System.out.print(field[i][j]);
+    }
+  }
+  System.out.println();
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h6 id=&#34;判定&#34;&gt;判定&lt;/h6&gt;
+
+&lt;p&gt;　今回はクリアしたかを判定するためにマスが開けられるたびにカウンタを1ずつ加算していき、その値が最初に設定しておく爆弾のないマスの数に等しくなった時点でクリアとする方式で行きたいと思います。&lt;/p&gt;
+
+&lt;p&gt;　これらがマインスイーパの簡略版の基本です。これらをまとめて、マインスイーパとして仕上げたものを以下に載せておきます。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-java&#34;&gt;Scanner stdIn = new Scanner(System.in);
+byte[][] field = {
+                {1,1,1,9},
+                {1,9,3,2},
+                {2,3,9,1},
+                {9,2,1,1}
+        };
+boolean[][] openfield = new boolean[4][4];
+
+for(int k = 0;; k++){
+  //座標入力
+  System.out.print(&amp;quot;m:&amp;quot;);
+  int m = stdIn.nextInt();
+  System.out.print(&amp;quot;n:&amp;quot;);
+  int n = stdIn.nextInt();
+
+  //フィールドの確認
+  if(field[m][n] == 9){
+    System.out.println(&amp;quot;ゲームオーバーです&amp;quot;);
+    break;
+  }else{
+    if(openfield[m][n]){
+      System.out.println(&amp;quot;すでに開いています&amp;quot;);
+      k--;
+      continue;
+    }else{
+      openfield[m][n] = true;
+    }
+  }
+  if(k &amp;gt;= 11){
+    System.out.println(&amp;quot;クリアです&amp;quot;);
+    break;
+  }
+  //フィールドの表示
+  System.out.println(&amp;quot;＜＜＜開いているところ＞＞＞&amp;quot;);
+  for(int i = 0; i &amp;lt; field.length; i++){
+    for(int j = 0; j &amp;lt; field[i].length; j++){
+      if(openfield[i][j]){
+        System.out.print(field[i][j]);
+      }else{
+        System.out.print(&amp;quot;-&amp;quot;);
+      }
+    }
+    System.out.println();
+  }
+  System.out.println();
+}
+//終了時処理
+System.out.println(&amp;quot;【答え】&amp;quot;);
+for(int i = 0; i &amp;lt; field.length; i++){
+  for(int j = 0; j &amp;lt; field[i].length; j++){
+    if(field[i][j] == 9){
+      System.out.print(&amp;quot;*&amp;quot;);
+    }else{
+      System.out.print(field[i][j]);
+    }
+  }
+  System.out.println();
+}
+stdIn.close();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;　これで、簡単化されたマインスイーパは完成です。&lt;/p&gt;
+
+&lt;p&gt;　しかし簡単化されたものでは、物足りないのでこれをもう少ししっかりしたものにしていきたいと思います。そのために、
+まずは、旗を立てることができるようにします。そのために、マスの状態を管理している二次元配列をboolean型のものから
+byte型のものにして、2つ以上の状態を保持できるようにします。そして、フィールドの表示でif文の分岐を増やし旗が
+立っているとき「&lt;strong&gt;P&lt;/strong&gt;」などの旗とわかる文字を表示するようにします。あと、入力の際に旗を立てるのかマスを開けるのかを
+確認するようにして入力をさせるようにして、旗を立てる部分は完成です。&lt;/p&gt;
+
+&lt;p&gt;　次に、爆弾をランダム配置してみたいと思います。そのために、Randomクラスを用いてフィールドのX座標とY座標をランダムに
+指定し、そこに爆弾がなければ爆弾を配置するという処理を設置する爆弾の数だけ行います。そして、次に問題になるのが、爆弾のない
+マスは周囲にある爆弾の数を持っていなければならないのですが、そのために、フィールドのマスを1ずつ参照していき、周囲に爆弾があれば
+そのマスが保持している値を1加算することでマスの値を求めます。その部分のソースを以下に載せます。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-java&#34;&gt;//値の設定
+for(int i = 0; i &amp;lt; field.length; i++){
+    for(int j = 0; j &amp;lt; field[i].length; j++){
+        if(field[i][j] != 9){
+            for(int k = -1; k &amp;lt;= 1; k++){
+                for(int l = -1; l &amp;lt;= 1; l++){
+                    try{
+                        if(field[i+k][j+l]==9)field[i][j]++;
+                    }catch(ArrayIndexOutOfBoundsException e){
+                    }
+                }
+            }
+        }
+    }
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;このようにすることで、簡単化されたものからある程度本格的なものになりました。&lt;/p&gt;
+
+&lt;h3 id=&#34;gui版-java-swing&#34;&gt;GUI版(java swing)&lt;/h3&gt;
+
+&lt;p&gt;GUI版の、ソースコードはここに載せるには大きいので、
+ &lt;a href=&#34;https://github.com/tadaren/MineSweeper&#34;&gt;https://github.com/tadaren/MineSweeper&lt;/a&gt;
+をみてください。そして、解説は面倒なので省きます。&lt;/p&gt;
+
+&lt;h3 id=&#34;javascript版&#34;&gt;javascript版&lt;/h3&gt;
+
+&lt;p&gt;　そして、javascriptでwebで遊べるようにしたものが以下のURLで遊べます。
+    &lt;a href=&#34;http://tadaren.webcrow.jp/Minesweeper.html&#34;&gt;http://tadaren.webcrow.jp/Minesweeper.html&lt;/a&gt;
+詳しい内容はjavaとほぼ一緒なので解説は省かせていただきます。&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
